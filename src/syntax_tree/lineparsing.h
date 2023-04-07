@@ -11,6 +11,7 @@ int skipWhiteSpace(char* tmp_ptr);
 int getToken(char* start);
 char* mallocString(char* str, int length);
 int* getLineCounts(char* str);
-char* getNthToken(char* str, int position);
-  
+char* getNthToken(char* str, int position);  
+int isLineEmpty(char * line);
+void freeArrayOfStrings(char** str_arr);
 #endif 

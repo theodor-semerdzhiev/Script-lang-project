@@ -11,12 +11,13 @@ int getToken(char* start);
 char* mallocString(char* str, int length);
 int* getLineCounts(char* str);
 
-//returns an array of strings corresponding to each token in the input string 
+//Returns an array of strings corresponding to each token in the input string 
+//Make sure to call freeArrayOfString(char**, int) to free returned char**
 char** parseLine(char* str, int num_of_tokens, int length_str) {
   if(num_of_tokens == 0 || length_str == 0) return NULL;
   char *tmp_ptr=str;
   // skipWhiteSpace(tmp_ptr);
-  char ** parsed_line=malloc(sizeof(char*)*num_of_tokens);
+  char ** parsed_line=malloc(sizeof(char*)*num_of_tokens+1);
   int count=0;
   while(count < num_of_tokens) {
     tmp_ptr+=skipWhiteSpace(tmp_ptr);
@@ -25,7 +26,16 @@ char** parseLine(char* str, int num_of_tokens, int length_str) {
     tmp_ptr+=token_length;
     count++;
   }
+  parsed_line[count]=NULL;
   return parsed_line;
+}
+
+//frees an array of Strings
+//useful to be called after char** parseLine
+void freeArrayOfStrings(char** str_arr) {
+  for(int i=0; str_arr[i] != NULL; i++) {
+    free(str_arr[i]);
+  }
 }
 
 //this functions returns the number of characters before a whitespace character
@@ -50,9 +60,7 @@ int getToken(char* start) {
 //takes an initial index str and creates a substring of length int length
 char* mallocString(char* str,int length) {
   char *return_str=malloc(sizeof(char)*length+1);
-  for(int i=0; i < length; i++) {
-    return_str[i]=str[i];
-  }
+  for(int i=0; i < length; i++) return_str[i]=str[i];
   return_str[length]='\0';
   return return_str;
 }
@@ -102,8 +110,18 @@ char* getNthToken(char* str, int position) {
       met_token=TRUE;
     }
   }
-  if(tokencount != -1) {
+  if(startindex != -1) {
     return mallocString(&(str[startindex]), str_len);
   }
   return NULL;
 }
+
+//will return 1 if line is white space, 0 if not
+int isLineEmpty(char * line) {
+  for(int i=0; line[i] != '\0'; i++) {
+    if(isspace(line[i])==0) return 0;
+  }
+  return 1;
+}
+
+
