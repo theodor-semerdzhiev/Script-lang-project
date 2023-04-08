@@ -6,26 +6,36 @@ typedef struct{
   char* var_name;
   TYPE data_type;
   void* data;
-} let_intruc;
+} let_node_instruction;
 
-PARSER_EXIT_CODE create_let_instruction(CommandList list, char* line) {
-  
-  int* line_info = getLineCounts(line);
-  char **parsed_line = parseLine(line,line_info[0], line_info[1]);
-  
-  void** var_info = getValidVarName(parsed_line[2]);
+static void** getValidVarName(char* line);
+static int checkSyntaxEqualSymbol(char* line);
 
+PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line) {
+
+  void** var_info = getValidVarName(&(line[4]));
   if(var_info == NULL) return INVALID_VAR; // if variable name is invalid
   
-  int char_lengths_to_equal_symbol=checkSyntaxEqualSymbol(line+*(int*)var_info[1]);
+  int char_lengths_to_equal_symbol=checkSyntaxEqualSymbol(&(line[4 + *(int*)var_info[1]]));
 
-  if(char_lengths_to_equal_symbol == -1) return INVALID_SYNTAX; // if = is not present after variable name
+  // if = is not present after variable name
+  if(char_lengths_to_equal_symbol == -1) return INVALID_SYNTAX; 
+
+  char * test= *(char**) var_info[0];
+  let_node_instruction *let_node = malloc(sizeof(let_node_instruction));
+  let_node->var_name= test;
+  let_node->data_type=INTEGER; //TEMPORARY WILL BE SET TO SOMETHING APPROPRIATE
+  let_node->data=NULL;//TEMPORARY WILL BE SET TO SOMETHING
+
+  struct Instruction *instruction_node = malloc(sizeof(struct Instruction));
+  instruction_node->next=NULL;
+  instruction_node->command = LET;
+  instruction_node->command_data=let_node;
   
-  //then must check for type and create appropriate struct
-  //also create variable hashmap to store var names and there data
+  addCommmand(list,instruction_node);
 
-  free(line_info);
-  freeArrayOfStrings(parsed_line);
+  free(var_info[1]);
+  free(var_info);
 
   return CLEAN_EXIT;
 }
@@ -34,12 +44,20 @@ PARSER_EXIT_CODE create_let_instruction(CommandList list, char* line) {
 //will return NULL if not
 //return an array [char* name, int* length]
 static void** getValidVarName(char* line) {
-  if(isalpha(line[0])==0) return NULL;
+  char* str_ptr=line;
+  for(int i=0; line[i] != '\0'; i++) {
+    if(isalpha(line[0]) == 0 && isspace(line[0]) != 0) { 
+      return NULL;
+    } else if(isalpha(line[0]) != 0) {
+      str_ptr+=i;
+      break;
+    }
+  }
 
   int var_len=0;
-  for(int i=0; isalnum(line[i]) != 0; i++) var_len++;
+  for(int i=0; isalnum(str_ptr[i]) != 0; i++) var_len++;
 
-  char *varname=mallocString(line,var_len);
+  char *varname=mallocString(str_ptr,var_len);
   int *return_int=malloc(sizeof(int));
   *return_int=var_len;
   

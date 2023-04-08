@@ -6,9 +6,9 @@ typedef enum{
   FLOAT,
   CHAR,
   STRING,
-  ARRAY
+  ARRAY,
+  FUNC,
+  UNKNOWN
 } TYPE;
-
-TYPE getType(char* keyword);
 
 #endif /* TYPES_H */

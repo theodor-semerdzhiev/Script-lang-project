@@ -9,6 +9,7 @@
         "-g",
         "${file}",
         "lineparsing.c",
+        ".\\syntax_analysis\\let_parser.c",
         "-o",
         "${fileDirname}\\${fileBasenameNoExtension}.exe"
       ],

@@ -3,48 +3,11 @@
 #include <ctype.h>
 #include <string.h>
 #include "./lineparsing.h"
+#include "./syntax_analysis/let_parser.h"
 
 typedef enum{FALSE=0, TRUE=1} boolean;
 
-typedef enum {
-  CLEAN_EXIT,
-  UNDEFINED_KEYWORD,
-  INVALID_VAR,
-  INVALID_SYNTAX,
-  INVALID_ASSIGNMENT,
-  INVALID_FILENAME
-} PARSER_EXIT_CODE; 
-
-typedef enum {
-  LET,
-  SET,
-  SHOUT,
-  IF,
-  END,
-  FOR,
-  WHILE,
-  CONTINUE,
-  BREAK,
-  DO,
-  DONE,
-  EXIT,
-  INVALID
-  //,FUNC
-} COMMAND;
-
-struct Instruction {
-  COMMAND command;
-  struct Instruction *next;
-  void* command_data; //will be a pointer to the command struct
-}; 
-
-typedef struct {
-  int instr_count;
-  struct Instruction *head; 
-  struct Instruction *tail;
-} CommandList;
-
-COMMAND InitializeCommand(struct Instruction *instruc, char *first_token);
+static PARSER_EXIT_CODE InitializeCommand(CommandList* syntaxtree, char *buffer);
 void addCommmand(CommandList *list, struct Instruction *instruc);
 CommandList *create_Command_list();
 PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name);
@@ -97,18 +60,12 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
     if(isLineEmpty(buffer) == 1) continue; //if line is just whitespace
 
     // after this we will call fucntion that takes
+    PARSER_EXIT_CODE line_parser_exit_code = InitializeCommand(instruc_list,buffer);
 
-    struct Instruction *instruc = malloc(sizeof(struct Instruction));
-    instruc->next=NULL;
-
-    char *first_token = getNthToken(buffer,1);
-    
-    // if(InitializeCommand(instruc,first_token) == INVALID) {
-    //   printf(first_token);
-    //   free(first_token);
-    //   return UNDEFINED_KEYWORD;
-    // }
-    addCommmand(instruc_list, instruc);
+    if(line_parser_exit_code != CLEAN_EXIT)  {
+      return line_parser_exit_code;
+    }
+    // addCommmand(instruc_list, instruc);
 
     if (line_ptr == EOF) break; 
     line_len=0; 
@@ -120,42 +77,32 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
 //might need to replaced eventually with a hash
 //for the time being it works
 //dont forget to have function calls to create void* to instruction node with (*void) cast
-COMMAND InitializeCommand(struct Instruction *instruc, char *first_token) {
+static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer) {
+  char *first_token = getNthToken(buffer,1);
   if (strcmp(first_token, "let") == 0) {
-      instruc->command = LET;
-      return LET;
+    free(first_token);
+    return create_let_instruction(syntaxtree,buffer);
   } else if (strcmp(first_token, "set") == 0) {
-      instruc->command = SET;
       return SET;
   } else if (strcmp(first_token, "shout") == 0) {
-      instruc->command = SHOUT;
       return SHOUT;
   } else if (strcmp(first_token, "if") == 0) {
-      instruc->command = IF;
       return IF;
   } else if (strcmp(first_token, "end") == 0) {
-      instruc->command = END;
       return END;
   } else if (strcmp(first_token, "for") == 0) {
-      instruc->command = FOR;
       return FOR;
   } else if (strcmp(first_token, "while") == 0) {
-      instruc->command = WHILE;
       return WHILE;
   } else if (strcmp(first_token, "continue") == 0) {
-      instruc->command = CONTINUE;
       return CONTINUE;
   } else if (strcmp(first_token, "break") == 0) {
-      instruc->command = BREAK;
       return BREAK;
   } else if (strcmp(first_token, "do") == 0) {
-      instruc->command = DO;
       return DO;
   } else if (strcmp(first_token, "done") == 0) {
-      instruc->command = DONE;
       return DONE;
   } else if (strcmp(first_token, "exit") == 0) {
-      instruc->command = EXIT;
       return EXIT;
   } else {
       return INVALID; // return an invalid command value to indicate an error

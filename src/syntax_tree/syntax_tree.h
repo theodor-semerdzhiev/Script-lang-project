@@ -43,7 +43,6 @@ typedef struct {
     struct Instruction *tail;
 } CommandList;
 
-COMMAND InitializeCommand(struct Instruction *instruc, char *first_token);
 void addCommmand(CommandList *list, struct Instruction *instruc);
 CommandList *create_Command_list();
 PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char *script_name);
