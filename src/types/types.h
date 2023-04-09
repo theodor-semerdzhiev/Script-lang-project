@@ -7,7 +7,7 @@ typedef enum{
   CHAR,
   STRING,
   ARRAY,
-  FUNC,
+  FUNCTION,
   UNKNOWN
 } TYPE;
 

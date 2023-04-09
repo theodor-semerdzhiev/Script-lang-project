@@ -1,4 +1,3 @@
 let num  =  123
 let var =  230
 let var = 100
-set var = 100

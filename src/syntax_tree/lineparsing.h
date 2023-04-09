@@ -7,11 +7,12 @@
 #include <string.h>
 
 char** parseLine(char* str, int num_of_tokens, int length_str);
-int skipWhiteSpace(char* tmp_ptr);
-int getToken(char* start);
-char* mallocString(char* str, int length);
-int* getLineCounts(char* str);
-char* getNthToken(char* str, int position);  
-int isLineEmpty(char * line);
+int getCharsBeforeWhiteSpace(const char * tmp_ptr);
+int getTokenLength(const char* start);
+char* mallocString(const char* str, unsigned int length);
+int* getLineCounts(const char* str);
+int isLineEmpty(const char * line);
 void freeArrayOfStrings(char** str_arr);
+char* getNthToken(const char* str, int position);
+char* copyString(const char* stringtocopy);
 #endif 

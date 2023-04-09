@@ -4,6 +4,7 @@
 #include <string.h>
 #include "./lineparsing.h"
 #include "./syntax_analysis/let_parser.h"
+#include "../symbol_tables/keyword_table.h"
 
 typedef enum{FALSE=0, TRUE=1} boolean;
 
@@ -39,6 +40,7 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
   char buffer[3000];
   boolean metWhiteSpace=TRUE;
 
+  createTable(); //initiliazes keyword hash table
   while(line_ptr != EOF) {
     //normalizes lines by removing excess whtespace
     while(line_ptr != '\n' && line_ptr != EOF) {
@@ -74,38 +76,46 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
   return CLEAN_EXIT;
 }
 
-//might need to replaced eventually with a hash
-//for the time being it works
-//dont forget to have function calls to create void* to instruction node with (*void) cast
+
 static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer) {
   char *first_token = getNthToken(buffer,1);
-  if (strcmp(first_token, "let") == 0) {
-    free(first_token);
-    return create_let_instruction(syntaxtree,buffer);
-  } else if (strcmp(first_token, "set") == 0) {
-      return SET;
-  } else if (strcmp(first_token, "shout") == 0) {
-      return SHOUT;
-  } else if (strcmp(first_token, "if") == 0) {
-      return IF;
-  } else if (strcmp(first_token, "end") == 0) {
-      return END;
-  } else if (strcmp(first_token, "for") == 0) {
-      return FOR;
-  } else if (strcmp(first_token, "while") == 0) {
-      return WHILE;
-  } else if (strcmp(first_token, "continue") == 0) {
-      return CONTINUE;
-  } else if (strcmp(first_token, "break") == 0) {
-      return BREAK;
-  } else if (strcmp(first_token, "do") == 0) {
-      return DO;
-  } else if (strcmp(first_token, "done") == 0) {
-      return DONE;
-  } else if (strcmp(first_token, "exit") == 0) {
-      return EXIT;
-  } else {
-      return INVALID; // return an invalid command value to indicate an error
+  switch(Hashmap_get(first_token)) {
+    case LET:
+      return create_let_instruction(syntaxtree,buffer);
+    case SET:
+      return CLEAN_EXIT;  
+    case SHOUT:
+      return CLEAN_EXIT;
+    case IF:
+      return CLEAN_EXIT;
+    case THEN:
+      return CLEAN_EXIT;
+    case ENDIF:
+      return CLEAN_EXIT;
+    case FOR:
+      return CLEAN_EXIT;
+    case WHILE:
+      return CLEAN_EXIT;
+    case DO:
+      return CLEAN_EXIT;
+    case DONE:
+      return CLEAN_EXIT;
+    case CONTINUE:
+      return CLEAN_EXIT;
+    case BREAK:
+      return CLEAN_EXIT;
+    case FUNC:
+      return CLEAN_EXIT;
+    case RUN:
+      return CLEAN_EXIT;
+    case END:
+      return CLEAN_EXIT;
+    case RETURN:
+      return CLEAN_EXIT;
+    case EXIT:
+      return CLEAN_EXIT;
+    case INVALID:
+      return CLEAN_EXIT;
   }
 }
 
@@ -122,6 +132,7 @@ int main(int argc, char *argv[]) {
 
   CommandList *instruc = create_Command_list();
   parse_syntax_tree(instruc, "test.txt");
+
 
   return 0;
 }
