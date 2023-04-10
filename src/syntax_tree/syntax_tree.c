@@ -36,13 +36,14 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
   if(fileStream == NULL) return INVALID_FILENAME;
 
   int line_len=0;
+  int line_number=0;
   char line_ptr=fgetc(fileStream);
   char buffer[3000];
   boolean metWhiteSpace=TRUE;
 
   createTable(); //initiliazes keyword hash table
   while(line_ptr != EOF) {
-    //normalizes lines by removing excess whtespace
+    //trims string by removing excess whitespace
     while(line_ptr != '\n' && line_ptr != EOF) {
       if(isspace(line_ptr) == 0) {
         buffer[line_len]=line_ptr;
@@ -50,7 +51,6 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
         line_len++;
       } else if (metWhiteSpace == FALSE) {
         buffer[line_len]=line_ptr;
-        metWhiteSpace=TRUE;
         line_len++;
       } 
       line_ptr = getc(fileStream);
@@ -65,12 +65,14 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
     PARSER_EXIT_CODE line_parser_exit_code = InitializeCommand(instruc_list,buffer);
 
     if(line_parser_exit_code != CLEAN_EXIT)  {
+      printf("Error at line %d: %s", line_number,buffer);
       return line_parser_exit_code;
     }
     // addCommmand(instruc_list, instruc);
 
     if (line_ptr == EOF) break; 
     line_len=0; 
+    line_number++;
   }
   fclose(fileStream);
   return CLEAN_EXIT;
@@ -82,6 +84,7 @@ static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer)
   switch(Hashmap_get(first_token)) {
     case LET:
       return create_let_instruction(syntaxtree,buffer);
+    //TODO
     case SET:
       return CLEAN_EXIT;  
     case SHOUT:

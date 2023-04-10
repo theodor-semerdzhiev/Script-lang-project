@@ -14,7 +14,6 @@ struct Node{
   struct Node* next;
 };
 
-
 //a linkedlist used for chaining in my hashmap
 struct LinkedList{
   struct Node* head;

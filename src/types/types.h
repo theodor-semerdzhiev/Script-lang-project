@@ -3,11 +3,11 @@
 
 typedef enum{
   INTEGER,
-  FLOAT,
-  CHAR,
+  DOUBLE,
   STRING,
   ARRAY,
   FUNCTION,
+  VAR,
   UNKNOWN
 } TYPE;
 
