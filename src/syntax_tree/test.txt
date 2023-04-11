@@ -1,6 +1,6 @@
 let num  =  123 
 let var =  "1  213 123 123 123 123 "
 let var= 100.231
-let variable      =     230.12 
+let variable      =     3.1415834234112341234
 let num = "string for testing"
 let num=200

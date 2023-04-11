@@ -15,43 +15,42 @@ struct Node{
 };
 
 //a linkedlist used for chaining in my hashmap
-struct LinkedList{
+typedef struct {
   struct Node* head;
   struct Node* tail;
-};
+} LinkedList;
 
 //hashmap
 struct Keyword_Table{
-  struct LinkedList **table;
-  int length;
+  LinkedList **table;
 };
 
 //acts as a constant struct that will exsist for the duration of the program runtime
 static struct Keyword_Table *Keyword_Table_;
 
-static void addtoList(struct LinkedList *list, struct Node *keyword);
-static COMMAND findKeyword(struct LinkedList *list, const char * firstTokenOfLine);
-void createTable();
+static void addtoList(LinkedList *list, struct Node *keyword);
+static COMMAND findKeyword(LinkedList *list, const char * firstTokenOfLine);
+void createKeywordTable();
 static void Hashmap_add(char *keyword, COMMAND identifer);
-COMMAND Hashmap_get(const char* firstTokenOfLine);
-unsigned long hash(const char *str);
-static void printList(struct LinkedList *list);
-static void printTable(struct LinkedList **list);
+COMMAND Keyword_Hashmap_get(const char* firstTokenOfLine);
+static unsigned int hash(const char *str);
+static void printList(LinkedList *list);
+static void printTable(LinkedList **list);
 
-//adds to chaining list
-static void addtoList(struct LinkedList *list, struct Node *keyword) {
+//adds to list
+static inline void addtoList(LinkedList *list, struct Node *keyword) {
   if(list->head == NULL) {
     list->head = keyword;
     list->tail = keyword;
     return;
   }
   list->tail->next=keyword;
-  list->tail-list->tail->next;
+  list->tail=list->tail->next;
 }
 
 //iterates through array, until it finds the proper key
 //return the UNKNOWN enum type if it does not find it
-static COMMAND findKeyword(struct LinkedList *list, const char * firstTokenOfLine) {
+static COMMAND findKeyword(LinkedList *list, const char * firstTokenOfLine) {
   struct Node* ptr = list->head;
   while(ptr != NULL) {
     if(strcmp(ptr->keyword,firstTokenOfLine) == 0) {
@@ -63,17 +62,16 @@ static COMMAND findKeyword(struct LinkedList *list, const char * firstTokenOfLin
 } 
 
 //mallocs hashtable and adds appropriate keys along with their enums
-void createTable() {
-  struct LinkedList **table=malloc(sizeof(struct LinkedList*)*TABLE_SIZE);
+void createKeywordTable() {
+  LinkedList **table=malloc(sizeof(LinkedList*)*TABLE_SIZE);
   for(int i=0; i< TABLE_SIZE; i++) {
-    table[i]=malloc(sizeof(struct LinkedList));
+    table[i]=malloc(sizeof(LinkedList));
     table[i]->head=NULL;
     table[i]->tail=NULL;
   }
   if(Keyword_Table_ == NULL) {
     Keyword_Table_=malloc(sizeof(struct Keyword_Table));
   }
-  Keyword_Table_->length=TABLE_SIZE;
   Keyword_Table_->table=table;
 
   char *keywords[] = {
@@ -91,21 +89,21 @@ void createTable() {
 }
 
 //adds to our hashmap
-static void Hashmap_add(char *cpy_keyword,COMMAND type) {
+static void Hashmap_add(char *copy_of_keyword,COMMAND type) {
   struct Node *node=malloc(sizeof(struct Node));
-  node->keyword=cpy_keyword;
+  node->keyword=copy_of_keyword;
   node->keyword_enum=type;
   node->next=NULL;
-  addtoList(Keyword_Table_->table[hash(cpy_keyword)],node);
+  addtoList(Keyword_Table_->table[hash(copy_of_keyword)],node);
 }
 
-COMMAND Hashmap_get(const char* firstTokenOfLine) {
+COMMAND Keyword_Hashmap_get(const char* firstTokenOfLine) {
   return findKeyword(Keyword_Table_->table[hash(firstTokenOfLine)],firstTokenOfLine);
 }
 
 //hash function, tailored for our inputs (zero collisions)
-unsigned long hash(const char *str) {
-    unsigned long hash = 101;
+static unsigned int hash(const char *str) {
+    unsigned int hash = 101;
     int c;
     while ((c = *str++))
         hash = ((hash << 5) + hash*c) + c; 
@@ -113,7 +111,7 @@ unsigned long hash(const char *str) {
 }
 
 //for utility and testing
-static void printList(struct LinkedList *list) {
+static void printList(LinkedList *list) {
   struct Node* ptr=list->head;
   while(ptr != NULL) {
     printf("%s->",ptr->keyword);
@@ -123,7 +121,7 @@ static void printList(struct LinkedList *list) {
 }
 
 //for utility and testing
-static void printTable(struct LinkedList **list) {
+static void printTable(LinkedList **list) {
   for(int i =0; i< TABLE_SIZE; i++) {
     printList(list[i]);
   }

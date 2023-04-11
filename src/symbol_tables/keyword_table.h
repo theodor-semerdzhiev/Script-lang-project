@@ -7,6 +7,6 @@
 #include "../syntax_tree/lineparsing.h"
 
 extern struct Keyword_Table *Keyword_Table_;
-void createTable();
-COMMAND Hashmap_get(const char* firstTokenOfLine);
+void createKeywordTable();
+COMMAND Keyword_Hashmap_get(const char* firstTokenOfLine);
 #endif 

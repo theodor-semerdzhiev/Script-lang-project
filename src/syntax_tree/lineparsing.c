@@ -11,7 +11,7 @@ int getTokenLength(const char* start);
 char* mallocString(const char* str, unsigned int length);
 int* getLineCounts(const char* str);
 int isLineEmpty(const char * line);
-void freeArrayOfStrings(char** str_arr);
+inline void freeArrayOfStrings(char** str_arr);
 char* getNthToken(const char* str, int position);
 char* copyString(const char* stringtocopy);
 //Returns an array of strings corresponding to each token in the input string 
@@ -34,7 +34,7 @@ char** parseLine(char* str, int num_of_tokens, int length_str) {
 
 //frees an array of Strings
 //useful to be called after char** parseLine
-void freeArrayOfStrings(char** str_arr) {
+inline void freeArrayOfStrings(char** str_arr) {
   for(int i=0; str_arr[i] != NULL; i++) {
     free(str_arr[i]);
   }
@@ -129,7 +129,7 @@ int isLineEmpty(const char * line) {
 //return a copy of input string
 //calls malloc on the new string
 char* copyString(const char* stringtocopy) {
-  int length_of_str=strlen(stringtocopy);
+  int length_of_str = strlen(stringtocopy);
   char * newString=malloc(sizeof(char)*length_of_str+1);
   for(int i=0; i < length_of_str; i++) {
     newString[i]=stringtocopy[i];

@@ -41,7 +41,7 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
   char buffer[3000];
   boolean metWhiteSpace=TRUE;
 
-  createTable(); //initiliazes keyword hash table
+  createKeywordTable(); //initiliazes keyword hash table
   while(line_ptr != EOF) {
     //trims string by removing excess whitespace
     while(line_ptr != '\n' && line_ptr != EOF) {
@@ -81,7 +81,7 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
 
 static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer) {
   char *first_token = getNthToken(buffer,1);
-  switch(Hashmap_get(first_token)) {
+  switch(Keyword_Hashmap_get(first_token)) {
     case LET:
       return create_let_instruction(syntaxtree,buffer);
     //TODO
