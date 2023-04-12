@@ -5,10 +5,11 @@
 #include "./lineparsing.h"
 #include "./syntax_analysis/let_parser.h"
 #include "../symbol_tables/keyword_table.h"
+#include "../symbol_tables/variable_table.h"
 
 typedef enum{FALSE=0, TRUE=1} boolean;
 
-static PARSER_EXIT_CODE InitializeCommand(CommandList* syntaxtree, char *buffer);
+static PARSER_EXIT_CODE InitializeCommand(CommandList* syntaxtree, char *buffer, int linenumber);
 void addCommmand(CommandList *list, struct Instruction *instruc);
 CommandList *create_Command_list();
 PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name);
@@ -41,7 +42,8 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
   char buffer[3000];
   boolean metWhiteSpace=TRUE;
 
-  createKeywordTable(); //initiliazes keyword hash table
+  createKeywordTable(); //initiliazes keyword hashtable
+  InitializeVariableTable(250); //initilizes variable hashtable
   while(line_ptr != EOF) {
     //trims string by removing excess whitespace
     while(line_ptr != '\n' && line_ptr != EOF) {
@@ -62,7 +64,7 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
     if(isLineEmpty(buffer) == 1) continue; //if line is just whitespace
 
     // after this we will call fucntion that takes
-    PARSER_EXIT_CODE line_parser_exit_code = InitializeCommand(instruc_list,buffer);
+    PARSER_EXIT_CODE line_parser_exit_code = InitializeCommand(instruc_list,buffer,line_number);
 
     if(line_parser_exit_code != CLEAN_EXIT)  {
       printf("Error at line %d: %s", line_number,buffer);
@@ -79,11 +81,12 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
 }
 
 
-static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer) {
+static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer, int lineNumber) {
   char *first_token = getNthToken(buffer,1);
   switch(Keyword_Hashmap_get(first_token)) {
     case LET:
-      return create_let_instruction(syntaxtree,buffer);
+      return create_let_instruction(syntaxtree,buffer,lineNumber);
+      
     //TODO
     case SET:
       return CLEAN_EXIT;  

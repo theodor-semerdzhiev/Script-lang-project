@@ -14,6 +14,7 @@ int isLineEmpty(const char * line);
 inline void freeArrayOfStrings(char** str_arr);
 char* getNthToken(const char* str, int position);
 char* copyString(const char* stringtocopy);
+
 //Returns an array of strings corresponding to each token in the input string 
 //Make sure to call freeArrayOfString(char**, int) to free returned char**
 char** parseLine(char* str, int num_of_tokens, int length_str) {
@@ -91,6 +92,7 @@ int* getLineCounts(const char* str) {
 
 //gets the nth token from a string
 //0 is invalid input
+//make sure to free string after use
 char* getNthToken(const char* str, int position) {  
   boolean met_token=FALSE;
   int tokencount=0;

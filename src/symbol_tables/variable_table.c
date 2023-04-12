@@ -1,17 +1,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../types/types.h"
+#include "../variables/types.h"
 #include "../syntax_tree/lineparsing.h"
-
-#define DEFAULT_SIZE 75 //initial size of hashtable
 
 //Node for the LinkedList
 struct Node {
-  char* var_name;
   TYPE type;
   struct Node* next;
-  void* data;
+  Variable* var;
 };
 
 //a linkedlist used for chaining in my hashmap
@@ -32,10 +29,10 @@ static Variable_Table *Variable_Table_;
 static inline void addtoList(LinkedList *list, struct Node  *list_node);
 static struct Node* findVariableNode(LinkedList *list, const char* variable_name);
 void addVariable_to_Table(char* variable_name, void* data, TYPE type_of_var);
-void InitializeVariableTable();
+void InitializeVariableTable(int initialSize);
 void removeVariable_from_Table(char *variable_name);
 int containsVariable(const char* varname);
-void **getVariableValue(const char *varname, TYPE type);
+Variable *getVariableValue(const char *varname);
 static unsigned int hash(const char* var_name);
 static struct Node* replaceNode(LinkedList *list, char* variable_name, void* data, TYPE type_of_var);
 
@@ -55,7 +52,7 @@ static inline void addtoList(LinkedList *list, struct Node *list_node) {
 static struct Node* findVariableNode(LinkedList *list, const char* variable_name) {
   struct Node* ptr = list->head;
   while(ptr != NULL) {
-    if(strcmp(ptr->var_name,variable_name) == 0) {
+    if(strcmp(ptr->var->name,variable_name) == 0) {
       return ptr;
     } 
     ptr=ptr->next;
@@ -68,10 +65,11 @@ static struct Node* findVariableNode(LinkedList *list, const char* variable_name
 static struct Node* replaceNode(LinkedList *list, char* variable_name, void* data, TYPE type_of_var) {
   struct Node* ptr = list->head;
   while(ptr != NULL) {
-    if(strcmp(ptr->var_name,variable_name)==0) {
+    if(strcmp(ptr->var->name,variable_name)==0) {
       ptr->type=type_of_var;
-      free(ptr->data);
-      ptr->data=data;
+      
+      modifyVariable(ptr->var,variable_name,data,type_of_var);
+      //TODO WRITE THIS CODE
       return ptr;
     }
     ptr=ptr->next;
@@ -88,18 +86,18 @@ void addVariable_to_Table(char* variable_name, void* data, TYPE type_of_var) {
   if(replaceNode(list,variable_name,data,type_of_var) != NULL) //if varriable name already in list, we simply modify node
     return;
   struct Node* node = malloc(sizeof(struct Node));
-  node->data=data;
+  
+  Variable *variable = createVariableStruct(type_of_var,variable_name,data,strlen(variable_name)); 
   node->next=NULL;
-  node->var_name=variable_name;
   node->type=type_of_var;
   addtoList(list,node);
   Variable_Table_->size++;
 }
 
 //creates the hashtable
-void InitializeVariableTable() {
-  LinkedList **list = malloc(sizeof(LinkedList*)*DEFAULT_SIZE);
-  for(int i=0; i < DEFAULT_SIZE; i++) {
+void InitializeVariableTable(int initialSize) {
+  LinkedList **list = malloc(sizeof(LinkedList*)*initialSize);
+  for(int i=0; i < initialSize; i++) {
     list[i] = malloc(sizeof(LinkedList));
     list[i]->head=NULL;
     list[i]->tail=NULL;
@@ -107,7 +105,7 @@ void InitializeVariableTable() {
   if(Variable_Table_ == NULL) Variable_Table_=malloc(sizeof(Variable_Table));
   
   Variable_Table_->table=list;
-  Variable_Table_->length=DEFAULT_SIZE;
+  Variable_Table_->length=initialSize;
   Variable_Table_->size=0;
 }
 
@@ -119,28 +117,19 @@ void removeVariable_from_Table(char *variable_name) {
     return;
 
   struct Node* tmp = list->head;
-  if(strcmp(tmp->var_name,variable_name) == 0) {
-    struct Node* next_node=tmp->next;
-    free(tmp->var_name);
-    free(tmp->data);
-    free(tmp);
-    list->head=next_node;
-    if(next_node == NULL || next_node->next == NULL) {
-      list->tail=next_node;
-    }
-    Variable_Table_->size--;
-    return;
-  }
-  struct Node* prev = list->head;
-  tmp=tmp->next;
+  struct Node* prev = NULL;
   while(tmp != NULL) {
-    if(strcmp(tmp->var_name,variable_name) == 0) {
-      prev->next=tmp->next;
+    if(strcmp(tmp->var->name,variable_name) == 0) {
+      struct Node* next_node=tmp->next;
+      if(prev == NULL) {
+        list->head=tmp->next;
+      } else {
+        prev->next=tmp->next;
+      }
       if(tmp->next == NULL) {
         list->tail=prev;
       }
-      free(tmp->var_name);
-      free(tmp->data);
+      freeVariableStruct(tmp->var);
       free(tmp);
       Variable_Table_->size--;
       return;
@@ -160,43 +149,48 @@ int containsVariable(const char* varname) {
   return 0;
 }
 
-//gets the value mapped to varname
-//returns an array [enum TYPE*, void* data]
-//make sure to cast *void accordingly
-//returns NULL if varname is not in hashtable
-//make sure to free the returned array
-void **getVariableValue(const char *varname, TYPE type) {
+//Gets the value mapped to varname and
+//returns an array [enum TYPE, void* data].
+//Make sure to cast *void accordingly
+//returns NULL if varname is not in hashtable and
+//make sure to free the returned array.
+Variable *getVariable(const char *varname) {
   struct Node* node= findVariableNode(Variable_Table_->table[hash(varname)],varname);
   if(node == NULL) return NULL;
-  void** return_arr = malloc(sizeof(void*)*2);
-  return_arr[0] = &(node->type);
-  return_arr[1] = node->data;
-  return return_arr;
+  return node->var;
+}
+
+//gets the type of the variable
+//return UNKNOWN if variable is not in hashtable
+TYPE getVariableType(const char* varname) {
+  struct Node* node= findVariableNode(Variable_Table_->table[hash(varname)],varname);
+  if(node == NULL) return UNKNOWN;
+  return node->type;
 }
 
 //hash function
 static unsigned int hash(const char* var_name) {
   unsigned int hash = 13;
     int c;
-    while ((c = *var_name++))
-        hash = ((hash << 13)) + c; 
-    return hash % DEFAULT_SIZE;
+    while (c = *var_name++)
+        hash = (hash << 13) + c; 
+    return hash % Variable_Table_->length;
 }
 
 //used for debugging and testing purposes
 static inline void printList(LinkedList *list) {
   struct Node* ptr=list->head;
   while(ptr != NULL) {
-    printf("(var: %s,",ptr->var_name);
+    printf("(var: %s,",ptr->var->name);
     switch(ptr->type) {
       case INTEGER:
-        printf("TYPE: int, value = %d) --> ", *(int*) ptr->data);
+        printf("TYPE: int, value = %d) --> ",  ptr->var->data.integer);
         break;
       case STRING:
-        printf("TYPE: String, value = '%s') --> ", ptr->data);
+        printf("TYPE: String, value = '%s') --> ", ptr->var->data.str->string);
         break;
       case DOUBLE:
-        printf("TYPE: double, value = %f) --> ", *(double*) ptr->data);
+        printf("TYPE: double, value = %f) --> ", ptr->var->data.floatingpoint);
         break;
     }
     ptr=ptr->next;
@@ -206,8 +200,9 @@ static inline void printList(LinkedList *list) {
 
 //used for debugging purposes
 static inline void printTable() {
-  for(int i =0; i< DEFAULT_SIZE; i++) {
+  for(int i =0; i< Variable_Table_->length; i++) {
     printList(Variable_Table_->table[i]);
   }
 }
+
 

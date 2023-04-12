@@ -1,8 +1,8 @@
-#ifndef LET_NODE_INSTRUCTION_H
-#define LET_NODE_INSTRUCTION_H
+#ifndef LET_PARSER_H
+#define LET_PARSER_H
 
 #include "../lineparsing.h"
-#include "../../types/types.h"
+#include "../../variables/types.h"
 #include "../syntax_tree.h"
 
 typedef struct {
@@ -11,7 +11,7 @@ typedef struct {
   void* data;
 } let_node_instruction;
 
-PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line);
+PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineNumber);
 
 
 #endif

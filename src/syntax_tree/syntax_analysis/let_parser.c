@@ -1,7 +1,7 @@
 #include "../lineparsing.h"
-#include "../../types/types.h"
+#include "../../variables/types.h"
 #include "../syntax_tree.h"
-#include "../../types/type_parser.h"
+#include "../../variables/variable_parser.h"
 
 typedef struct{
   char* var_name;
@@ -9,37 +9,46 @@ typedef struct{
   void* data;
 } let_node_instruction;
 
-PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line);
-static void** getValidVarName(char* line);
+
+typedef struct {
+  char* var_name;
+  int length;
+} var_name;
+
+PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineNumber);
+static var_name* getValidVarName(char* line);
 static int checkSyntaxEqualSymbol(char* line);
 static TYPE AssignType(let_node_instruction *let_,char* line);
 
-PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line) {
+PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineNumber) {
   char* line_ptr=&(line[4]);
-  void** var_info = getValidVarName(line_ptr);
-  // printf("%s %d\n", *(char**) var_info[0], *(int*) var_info[1]);
+  var_name* variable = getValidVarName(line_ptr);
   
-  if(var_info == NULL) // if variable name is invalid
+  if(variable == NULL) // if variable name is invalid
     return INVALID_VAR; 
   
-  line_ptr+=*(int*)var_info[1];
+  line_ptr+=variable->length;
   int char_lengths_to_equal_symbol=checkSyntaxEqualSymbol(line_ptr);
 
   // if = is not present after variable name
-  if(char_lengths_to_equal_symbol == -1) 
+  if(char_lengths_to_equal_symbol == -1) {
+    free(variable->var_name);
+    free(variable);
     return INVALID_SYNTAX;
+  }
 
-
-  char * test= *(char**) var_info[0];
   let_node_instruction *let_node = malloc(sizeof(let_node_instruction));
-  let_node->var_name= test;
+  let_node->var_name= variable->var_name;
   let_node->data_type=INTEGER; //TEMPORARY WILL BE SET TO SOMETHING APPROPRIATE
   let_node->data=NULL;//TEMPORARY WILL BE SET TO SOMETHING
 
   line_ptr+=char_lengths_to_equal_symbol+1;
   
-  if(AssignType(let_node, line_ptr) == UNKNOWN) 
+  if(AssignType(let_node, line_ptr) == UNKNOWN) {
+    free(variable->var_name);
+    free(variable);
     return INVALID_TYPE;
+  }
   
   struct Instruction *instruction_node = malloc(sizeof(struct Instruction));
   instruction_node->next=NULL;
@@ -48,16 +57,13 @@ PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line) {
   
   addCommmand(list,instruction_node);
 
-  free(var_info[1]);
-  free(var_info);
-
   return CLEAN_EXIT;
 }
 
 
 //will return NULL if not
 //return an array [char* name, int* length]
-static void** getValidVarName(char* line) {
+static var_name* getValidVarName(char* line) {
   //first character of variable name must be 
   if(isalpha(line[0]) == 0) 
     return NULL;
@@ -72,17 +78,16 @@ static void** getValidVarName(char* line) {
   }
 
   int var_len=0;
-  for(int i=0; isalnum(str_ptr[i]) != 0; i++) var_len++;
+  for(int i=0; isalnum(str_ptr[i]) != 0 || line[i] =='_'; i++) 
+    var_len++;
 
   char *varname=mallocString(str_ptr,var_len);
-  int *return_int=malloc(sizeof(int));
-  *return_int=var_len;
   
-  void** return_arr = malloc(sizeof(void*)*2);
+  var_name* variable_struct=malloc(sizeof(var_name));
+  variable_struct->length=var_len;
+  variable_struct->var_name=varname;
 
-  return_arr[0]=&varname; 
-  return_arr[1]=return_int;
-  return return_arr;
+  return variable_struct;
 }
 
 //will check if '=' is the next none whitespace char
@@ -100,7 +105,7 @@ static int checkSyntaxEqualSymbol(char* line) {
 }
 
 static TYPE AssignType(let_node_instruction *let_,char* line) {
-   switch(getVariableType(line)) {
+   switch(getAssignmentType(line)) {
     case INTEGER:
       let_->data_type=INTEGER;
       let_->data=(int*) getInteger(line);
@@ -128,9 +133,19 @@ static TYPE AssignType(let_node_instruction *let_,char* line) {
 
     case ARRAY:
       let_->data_type=ARRAY;
-      printf("this: %s is and array", line);
+      printf("Array: %s ", line);
       return ARRAY;
     
+    case _NULL:
+      let_->data_type=_NULL;
+      let_->data=NULL;
+      if(checkAssignmentSyntax(line, "null") == 0)
+        break;
+      printf("NULL: %s is NULL", let_->var_name);
+      return _NULL;
+    case BOOL:
+
+      return BOOL;
     case FUNCTION:
       let_->data_type=FUNCTION;
       printf("this: %s is a function", line);
@@ -143,6 +158,8 @@ static TYPE AssignType(let_node_instruction *let_,char* line) {
       
     case UNKNOWN:
       break;
+    
+  
     default:
 
   } 

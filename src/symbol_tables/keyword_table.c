@@ -28,7 +28,7 @@ struct Keyword_Table{
 //acts as a constant struct that will exsist for the duration of the program runtime
 static struct Keyword_Table *Keyword_Table_;
 
-static void addtoList(LinkedList *list, struct Node *keyword);
+static inline void addtoList(LinkedList *list, struct Node *keyword);
 static COMMAND findKeyword(LinkedList *list, const char * firstTokenOfLine);
 void createKeywordTable();
 static void Hashmap_add(char *keyword, COMMAND identifer);
@@ -126,4 +126,6 @@ static void printTable(LinkedList **list) {
     printList(list[i]);
   }
 }
+
+
 

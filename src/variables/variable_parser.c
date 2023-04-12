@@ -4,23 +4,28 @@
 
 typedef enum{FALSE=0, TRUE=1} boolean;
 
-TYPE getVariableType(const char* line);
+TYPE getAssignmentType(const char* line);
 char* getStringFromQuotationMarks(char *line);
 int* getInteger(const char* line);
 double* getDouble(const char *line);
+int checkAssignmentSyntax(const char* line, const char* assignment);
 
 //this function given the input is a pointer to a string containing some variable assignment (after the '=')
 //return UNKNOWN if there is a syntax error
 //this function stops after seeing a '[', a number or '"'
 //it does NOT check if syntax is proper
-TYPE getVariableType(const char* line) {
+TYPE getAssignmentType(const char* line) {
   boolean metNumber=FALSE;
   for(int i=0; line[i] != '\0' ; i++) {
     if(isspace(line[i]) != 0)
       continue;
+    if(line[i] == 'n') 
+      return _NULL;
+    if(line[i] == 't' || line[i] =='f')
+      return BOOL;
     if(isalpha(line[i]) != 0) 
       return UNKNOWN;
-    if(line[i] == '[') 
+    if(line[i] == '[') //might change
       return ARRAY;
     if(line[i] == '$')
       return VAR;
@@ -121,6 +126,22 @@ double* getDouble(const char *line) {
   double * variable_value = malloc(sizeof(double));
   *variable_value=atof(line);
   return variable_value;
+}
+
+//returns 1 if assignment word (null, or true or false) is the only word after '='
+//returns 0 otherwise
+int checkAssignmentSyntax(const char* line, const char* assignment) {
+  int offset=0;
+  for(int i=0; isspace(line[i]) != 0; i++) {
+    offset++;
+  }
+  char *null_str=getNthToken(line+offset,1);
+  if(strcmp(null_str, assignment) != 0 && isLineEmpty(line+offset+4) == 0) {
+    free(null_str);
+    return 0;
+  }
+  free(null_str);
+  return 1;
 }
 
 
