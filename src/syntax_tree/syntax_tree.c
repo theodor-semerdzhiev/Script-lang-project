@@ -37,7 +37,7 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
   if(fileStream == NULL) return INVALID_FILENAME;
 
   int line_len=0;
-  int line_number=0;
+  int line_number=1;
   char line_ptr=fgetc(fileStream);
   char buffer[3000];
   boolean metWhiteSpace=TRUE;
@@ -58,11 +58,16 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
       line_ptr = getc(fileStream);
     }
     line_ptr=fgetc(fileStream);
-    if(line_len==0) continue;
+    if(line_len==0) {
+      line_number++;
+      continue;
+    }
     buffer[line_len]='\0';
 
-    if(isLineEmpty(buffer) == 1) continue; //if line is just whitespace
-
+    if(isLineEmpty(buffer) == 1) {
+      line_number++;
+      continue; //if line is just whitespace
+    }
     // after this we will call fucntion that takes
     PARSER_EXIT_CODE line_parser_exit_code = InitializeCommand(instruc_list,buffer,line_number);
 
@@ -121,7 +126,7 @@ static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer,
     case EXIT:
       return CLEAN_EXIT;
     case INVALID:
-      return CLEAN_EXIT;
+      return UNDEFINED_KEYWORD;
   }
 }
 
@@ -137,7 +142,7 @@ int main(int argc, char *argv[]) {
   // for(int i=0; i < arr[0]; i++) printf("%s ",line[i]);
 
   CommandList *instruc = create_Command_list();
-  parse_syntax_tree(instruc, "test.txt");
+  parse_syntax_tree(instruc, "test_script.txt");
 
 
   return 0;

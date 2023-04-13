@@ -28,13 +28,14 @@ static Variable_Table *Variable_Table_;
 
 static inline void addtoList(LinkedList *list, struct Node  *list_node);
 static struct Node* findVariableNode(LinkedList *list, const char* variable_name);
-void addVariable_to_Table(char* variable_name, void* data, TYPE type_of_var);
+void addVariable_to_VarTable(char* variable_name, void* data, TYPE type_of_var);
 void InitializeVariableTable(int initialSize);
-void removeVariable_from_Table(char *variable_name);
+void removeVariable_from_VarTable(char *variable_name);
 int containsVariable(const char* varname);
-Variable *getVariableValue(const char *varname);
+Variable *getVariable(const char *varname);
 static unsigned int hash(const char* var_name);
 static struct Node* replaceNode(LinkedList *list, char* variable_name, void* data, TYPE type_of_var);
+void clearVarTable();
 
 //adds to list
 static inline void addtoList(LinkedList *list, struct Node *list_node) {
@@ -81,15 +82,17 @@ static struct Node* replaceNode(LinkedList *list, char* variable_name, void* dat
 //adds variable to the hashtable
 //checks if variable_name is already in hashmap first
 //variable_name and data MUST be malloced before function call
-void addVariable_to_Table(char* variable_name, void* data, TYPE type_of_var) {
+void addVariable_to_VarTable(char* variable_name, void* data, TYPE type_of_var) {
   LinkedList *list = Variable_Table_->table[hash(variable_name)];
   if(replaceNode(list,variable_name,data,type_of_var) != NULL) //if varriable name already in list, we simply modify node
     return;
   struct Node* node = malloc(sizeof(struct Node));
-  
-  Variable *variable = createVariableStruct(type_of_var,variable_name,data,strlen(variable_name)); 
+  Variable *variable;
+  if(type_of_var == STRING) variable=createVariableStruct(type_of_var,variable_name,data,strlen((char*)data));
+  else                      variable=createVariableStruct(type_of_var,variable_name,data,0);
   node->next=NULL;
   node->type=type_of_var;
+  node->var=variable;
   addtoList(list,node);
   Variable_Table_->size++;
 }
@@ -111,7 +114,7 @@ void InitializeVariableTable(int initialSize) {
 
 //removes node that maps to variable_name from list
 //does nothing if not in list
-void removeVariable_from_Table(char *variable_name) {
+void removeVariable_from_VarTable(char *variable_name) {
   LinkedList *list = Variable_Table_->table[hash(variable_name)];
   if(list->head == NULL) 
     return;
@@ -168,6 +171,23 @@ TYPE getVariableType(const char* varname) {
   return node->type;
 }
 
+//clears the variable from hashtable
+void clearVarTable() {
+  for(int i=0; i < Variable_Table_->length; i++) {
+    LinkedList* list = Variable_Table_->table[i];
+    if(list->head==NULL) continue;
+    struct Node* ptr = list->head;
+    while(ptr != NULL) {
+      struct Node* tmp=ptr->next;
+      freeVariableStruct(ptr->var);
+      free(ptr);
+      ptr=tmp;
+    }
+    list->head=NULL;
+    list->tail=NULL;
+  }
+}
+
 //hash function
 static unsigned int hash(const char* var_name) {
   unsigned int hash = 13;
@@ -178,7 +198,7 @@ static unsigned int hash(const char* var_name) {
 }
 
 //used for debugging and testing purposes
-static inline void printList(LinkedList *list) {
+static void printList(LinkedList *list) {
   struct Node* ptr=list->head;
   while(ptr != NULL) {
     printf("(var: %s,",ptr->var->name);
@@ -203,6 +223,45 @@ static inline void printTable() {
   for(int i =0; i< Variable_Table_->length; i++) {
     printList(Variable_Table_->table[i]);
   }
+}
+
+int main() {
+   char* string_array[50] = {
+        "Hello", "World", "C", "Programming", "is", "fun", "and", "useful", "for", "building",
+        "great", "applications", "that", "people", "can", "use", "to", "improve", "their",
+        "lives", "and", "solve", "problems", "in", "innovative", "ways", "Programming", "is",
+        "also", "a", "valuable", "skill", "for", "anyone", "looking", "to", "pursue", "a",
+        "career", "in", "technology", "or", "just", "to", "learn", "something", "new", "and",
+        "exciting"
+    };
+
+  InitializeVariableTable(50);
+  for(int i=0; i < 49; i++) {
+       char* name=malloc(sizeof(char)*20);
+    strcpy(name,string_array[i]);
+
+    if(i % 3==0) {
+      int *num=malloc(sizeof(int));
+      *num=1;
+      addVariable_to_VarTable(name,num,INTEGER);
+
+    } else if(i % 3 == 1) {
+      double *num=malloc(sizeof(double));
+      *num=i+0.5;
+      addVariable_to_VarTable(name,num,DOUBLE);
+
+    } else if(i % 3 == 2) {
+      char* var_name=malloc(sizeof(char)*30);
+      strcpy(var_name,name);
+      addVariable_to_VarTable(name,var_name,STRING);
+    }
+  }
+  // printTable();
+  // for(int i=0; i< 49; i++) {
+  //   removeVariable_from_VarTable(string_array[i]);
+  // }
+  printTable();
+  clearVarTable();
 }
 
 

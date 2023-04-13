@@ -5,10 +5,10 @@
 
 extern struct Variable_Table *Variable_Table_;
 
-void addVariable_to_Table(char* variable_name, void* data, TYPE type_of_var);
+void addVariable_to_VarTable(char* variable_name, void* data, TYPE type_of_var);
 void InitializeVariableTable(int initialSize);
-void removeVariable_from_Table(char *variable_name);
+void removeVariable_from_VarTable(char *variable_name);
 int containsVariable(const char* varname);
 Variable *getVariable(const char *varname);
-
+void clearVarTable();
 #endif

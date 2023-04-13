@@ -31,6 +31,7 @@ union data_types{
   int integer;
   double floatingpoint;
   String *str;
+  int boolean;
   //arrays to be added TODO
 };
 

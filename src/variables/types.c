@@ -35,11 +35,16 @@ Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_
       node->data.integer= *(int*) data;
       break;
     case DOUBLE:
-      node->data.integer= *(double*) data;
+      node->data.floatingpoint= *(double*) data;
+      break;
+    case BOOL:
+      node->data.boolean = *(int*) data;
       break;
     case ARRAY:
       //TODO
       break; 
+    case _NULL:
+      break;
     default:
       break;
   }
@@ -50,12 +55,24 @@ void modifyVariable(Variable *varStruct, char* variable_name, void* data, TYPE t
   //changes the name and TYPE enum
   free(varStruct->name);
   varStruct->name=variable_name;
-  varStruct->type=type_of_var;
   switch(type_of_var) {
     case STRING:
-      free(varStruct->data.str->string);
-      varStruct->data.str->string=(char*)data;
-      varStruct->data.str->length=strlen((char*)data);
+      //if the struct is already a string, then we can just modify the exsisting struct
+      if(varStruct->type ==STRING) {
+        free(varStruct->data.str->string);
+        varStruct->data.str->string=(char*) data;
+        varStruct->data.str->length=strlen((char*) data);
+        
+      //otherwise we create a new string struct
+      } else {
+        String *newStr=malloc(sizeof(newStr));
+        newStr->length=strlen(variable_name);
+        newStr->string=(char*)data;
+        varStruct->data.str=newStr;
+      }
+      break;
+    case ARRAY:
+      //TODO
       break;
     case INTEGER:
       varStruct->data.integer= *(int*) data;
@@ -63,15 +80,13 @@ void modifyVariable(Variable *varStruct, char* variable_name, void* data, TYPE t
     case DOUBLE:
       varStruct->data.floatingpoint= *(double*) data;
       break;
-    case ARRAY:
-      //TODO
-      break;
     case BOOL:
-      //TODO
+      varStruct->data.boolean= *(int*) data;
       break; 
     default:
       break;
   }
+  varStruct->type=type_of_var;
 }
 
 

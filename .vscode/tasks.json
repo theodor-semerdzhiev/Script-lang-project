@@ -4,26 +4,29 @@
       "type": "cppbuild",
       "label": "C/C++: gcc.exe build active file",
       "command": "C:\\msys64\\mingw64\\bin\\gcc.exe",
-      "args": [
-        "-fdiagnostics-color=always",
-        "-g",
-        "syntax_tree.c",
-        "lineparsing.c",
-        ".\\syntax_analysis\\let_parser.c",
-        "..\\symbol_tables\\keyword_table.c",
-        "..\\variables\\type_parser.c",
-        "-o",
-        "${fileDirname}\\${fileBasenameNoExtension}.exe"
-      ],
       // "args": [
       //   "-fdiagnostics-color=always",
       //   "-g",
-      //   "${file}",
-      //   "..\\syntax_tree\\lineparsing.c",
-      //   "..\\variables\\types.c",
+      //   "./syntax_tree.c", 
+      //   "./lineparsing.c", 
+      //   "./syntax_analysis/let_parser.c", 
+      //   "../symbol_tables/keyword_table.c", 
+      //   "../variables/variable_parser.c", 
+      //   "../variables/types.c", 
+      //   "../variables/types.h", 
+      //   "../symbol_tables/variable_table.c",
       //   "-o",
       //   "${fileDirname}\\${fileBasenameNoExtension}.exe"
       // ],
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g",
+        ".\\variable_table.c",
+        "..\\syntax_tree\\lineparsing.c",
+        "..\\variables\\types.c",
+        "-o",
+        "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      ],
       // "args": [
       //   "-fdiagnostics-color=always",
       //   "-g",

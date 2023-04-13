@@ -6,12 +6,12 @@
 typedef struct{
   char* var_name;
   TYPE data_type;
-  void* data;
+  Variable* var;
 } let_node_instruction;
 
 
 typedef struct {
-  char* var_name;
+  char* name;
   int length;
 } var_name;
 
@@ -22,31 +22,30 @@ static TYPE AssignType(let_node_instruction *let_,char* line);
 
 PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineNumber) {
   char* line_ptr=&(line[4]);
-  var_name* variable = getValidVarName(line_ptr);
+  var_name* var_name = getValidVarName(line_ptr);
   
-  if(variable == NULL) // if variable name is invalid
+  if(var_name == NULL) { // if variable name is invalid
     return INVALID_VAR; 
+  }
   
-  line_ptr+=variable->length;
+  line_ptr+=var_name->length;
   int char_lengths_to_equal_symbol=checkSyntaxEqualSymbol(line_ptr);
 
   // if = is not present after variable name
   if(char_lengths_to_equal_symbol == -1) {
-    free(variable->var_name);
-    free(variable);
+    free(var_name->name);
+    free(var_name);
     return INVALID_SYNTAX;
   }
 
   let_node_instruction *let_node = malloc(sizeof(let_node_instruction));
-  let_node->var_name= variable->var_name;
-  let_node->data_type=INTEGER; //TEMPORARY WILL BE SET TO SOMETHING APPROPRIATE
-  let_node->data=NULL;//TEMPORARY WILL BE SET TO SOMETHING
+  let_node->var_name= var_name->name;
 
   line_ptr+=char_lengths_to_equal_symbol+1;
   
   if(AssignType(let_node, line_ptr) == UNKNOWN) {
-    free(variable->var_name);
-    free(variable);
+    free(var_name->name);
+    free(var_name);
     return INVALID_TYPE;
   }
   
@@ -85,7 +84,7 @@ static var_name* getValidVarName(char* line) {
   
   var_name* variable_struct=malloc(sizeof(var_name));
   variable_struct->length=var_len;
-  variable_struct->var_name=varname;
+  variable_struct->name=varname;
 
   return variable_struct;
 }
@@ -105,61 +104,74 @@ static int checkSyntaxEqualSymbol(char* line) {
 }
 
 static TYPE AssignType(let_node_instruction *let_,char* line) {
-   switch(getAssignmentType(line)) {
+  let_->data_type=getAssignmentType(line);
+  switch(let_->data_type) {
     case INTEGER:
-      let_->data_type=INTEGER;
-      let_->data=(int*) getInteger(line);
-      if(let_->data == NULL) 
+      int *integer=getInteger(line); //gets the integer to be assigned
+      if(integer == NULL) { 
+        free(integer);
         break;
-      printf("integer: %d \n", *(int*)let_->data);
+      }
+      let_->var=createVariableStruct(INTEGER,let_->var_name,integer,-1);
+      free(integer);
+      printf("integer: %d \n", let_->var->data.integer);
       return INTEGER;
-      
     case DOUBLE:
-      let_->data_type=DOUBLE;
-      let_->data=(double*) getDouble(line);
-      if(let_->data == NULL) 
+      double *double_precision=getDouble(line);
+      if(double_precision == NULL) {
+        free(double_precision);
         break;
-      printf("double: %f \n", *(double*)let_->data);
+      }
+      let_->var=createVariableStruct(DOUBLE,let_->var_name,double_precision,-1);
+      free(double_precision);
+      printf("double: %f \n", let_->var->data.floatingpoint);
       return DOUBLE;
-
     case STRING:
-      let_->data_type=STRING;
-      let_->data= (char*) getStringFromQuotationMarks(line);
-      if(let_->data == NULL)
+      char* str=getStringFromQuotationMarks(line);
+      if(str == NULL) {
+        free(str); 
         break;
-      printf("string: %s \n", (char*)let_->data);
+      }
+      let_->var=createVariableStruct(STRING,let_->var_name,str,strlen(str));
+      printf("string: %s \n", let_->var->data.str->string);
       return STRING;
     //TODO
-
     case ARRAY:
-      let_->data_type=ARRAY;
       printf("Array: %s ", line);
       return ARRAY;
     
     case _NULL:
-      let_->data_type=_NULL;
-      let_->data=NULL;
-      if(checkAssignmentSyntax(line, "null") == 0)
+      if(checkAssignmentSyntax(line, "null") == 0) 
         break;
-      printf("NULL: %s is NULL", let_->var_name);
+      let_->var=NULL;
+      
+      printf("NULL: %s is NULL\n", let_->var_name);
       return _NULL;
     case BOOL:
-
+      int num=-1;
+      if(checkAssignmentSyntax(line, "false") == 1) {
+        num=0;
+        let_->var=createVariableStruct(BOOL,let_->var_name,&(num),-1);
+      } else if(checkAssignmentSyntax(line, "true") == 1) {
+        num=1;
+        let_->var=createVariableStruct(BOOL,let_->var_name,&(num),-1);
+      } else {
+        break;
+      }
+      printf("BOOLEAN: %d\n", let_->var->data.boolean);
       return BOOL;
+
     case FUNCTION:
-      let_->data_type=FUNCTION;
       printf("this: %s is a function", line);
       return FUNCTION;
     
     case VAR:
-      let_->data_type=VAR;
       printf("this: %s is a var", line);
       return VAR;
       
     case UNKNOWN:
       break;
     
-  
     default:
 
   } 
@@ -167,4 +179,3 @@ static TYPE AssignType(let_node_instruction *let_,char* line) {
   free(let_);
   return UNKNOWN;
 }
-

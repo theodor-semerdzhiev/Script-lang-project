@@ -1,0 +1,7 @@
+let num =1200
+let num1=123
+let num23= "string"
+
+let float=123.43
+let null_pointer=null
+let boolean = true

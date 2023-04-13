@@ -97,7 +97,7 @@ int* getInteger(const char* line) {
   return variable_value;
 }
 
-
+//gets double from assignment operators
 double* getDouble(const char *line) {
   boolean asMetNumber=FALSE;
   boolean asMetDot=FALSE;
@@ -136,7 +136,7 @@ int checkAssignmentSyntax(const char* line, const char* assignment) {
     offset++;
   }
   char *null_str=getNthToken(line+offset,1);
-  if(strcmp(null_str, assignment) != 0 && isLineEmpty(line+offset+4) == 0) {
+  if(strcmp(null_str, assignment) != 0 || isLineEmpty(line+offset+strlen(assignment)) == 0) {
     free(null_str);
     return 0;
   }
