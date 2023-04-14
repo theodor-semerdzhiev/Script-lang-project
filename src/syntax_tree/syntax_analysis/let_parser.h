@@ -2,7 +2,7 @@
 #define LET_PARSER_H
 
 #include "../lineparsing.h"
-#include "../../variables/types.h"
+#include "../../types/types.h"
 #include "../syntax_tree.h"
 
 typedef struct {

@@ -91,7 +91,6 @@ static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer,
   switch(Keyword_Hashmap_get(first_token)) {
     case LET:
       return create_let_instruction(syntaxtree,buffer,lineNumber);
-      
     //TODO
     case SET:
       return CLEAN_EXIT;  

@@ -2,6 +2,13 @@ let num =1200
 let num1=123
 let num23= "string"
 
-let float=123.43
-let null_pointer=null
-let boolean = true
+let float=    12334.123232143
+let null_pointer  = null
+let boolean1 =     false
+let boolean3 =     true
+let boolean4 = 23.213222222222222222222222222
+
+bool ($float >= 100 and $boolean1 == false)
+
+math
+

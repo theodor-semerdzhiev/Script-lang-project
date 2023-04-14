@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "../variables/types.h"
+#include "../types/types.h"
 #include "../syntax_tree/lineparsing.h"
 
 //Node for the LinkedList
@@ -70,7 +70,7 @@ static struct Node* replaceNode(LinkedList *list, char* variable_name, void* dat
       ptr->type=type_of_var;
       
       modifyVariable(ptr->var,variable_name,data,type_of_var);
-      //TODO WRITE THIS CODE
+
       return ptr;
     }
     ptr=ptr->next;
@@ -84,7 +84,9 @@ static struct Node* replaceNode(LinkedList *list, char* variable_name, void* dat
 //variable_name and data MUST be malloced before function call
 void addVariable_to_VarTable(char* variable_name, void* data, TYPE type_of_var) {
   LinkedList *list = Variable_Table_->table[hash(variable_name)];
-  if(replaceNode(list,variable_name,data,type_of_var) != NULL) //if varriable name already in list, we simply modify node
+
+  //if varriable name already in list, we simply modify node
+  if(replaceNode(list,variable_name,data,type_of_var) != NULL) 
     return;
   struct Node* node = malloc(sizeof(struct Node));
   Variable *variable;
@@ -225,43 +227,43 @@ static inline void printTable() {
   }
 }
 
-int main() {
-   char* string_array[50] = {
-        "Hello", "World", "C", "Programming", "is", "fun", "and", "useful", "for", "building",
-        "great", "applications", "that", "people", "can", "use", "to", "improve", "their",
-        "lives", "and", "solve", "problems", "in", "innovative", "ways", "Programming", "is",
-        "also", "a", "valuable", "skill", "for", "anyone", "looking", "to", "pursue", "a",
-        "career", "in", "technology", "or", "just", "to", "learn", "something", "new", "and",
-        "exciting"
-    };
+// int main() {
+//    char* string_array[50] = {
+//         "Hello", "World", "C", "Programming", "is", "fun", "and", "useful", "for", "building",
+//         "great", "applications", "that", "people", "can", "use", "to", "improve", "their",
+//         "lives", "and", "solve", "problems", "in", "innovative", "ways", "Programming", "is",
+//         "also", "a", "valuable", "skill", "for", "anyone", "looking", "to", "pursue", "a",
+//         "career", "in", "technology", "or", "just", "to", "learn", "something", "new", "and",
+//         "exciting"
+//     };
 
-  InitializeVariableTable(50);
-  for(int i=0; i < 49; i++) {
-       char* name=malloc(sizeof(char)*20);
-    strcpy(name,string_array[i]);
+//   InitializeVariableTable(50);
+//   for(int i=0; i < 49; i++) {
+//        char* name=malloc(sizeof(char)*20);
+//     strcpy(name,string_array[i]);
 
-    if(i % 3==0) {
-      int *num=malloc(sizeof(int));
-      *num=1;
-      addVariable_to_VarTable(name,num,INTEGER);
+//     if(i % 3==0) {
+//       int *num=malloc(sizeof(int));
+//       *num=1;
+//       addVariable_to_VarTable(name,num,INTEGER);
 
-    } else if(i % 3 == 1) {
-      double *num=malloc(sizeof(double));
-      *num=i+0.5;
-      addVariable_to_VarTable(name,num,DOUBLE);
+//     } else if(i % 3 == 1) {
+//       double *num=malloc(sizeof(double));
+//       *num=i+0.5;
+//       addVariable_to_VarTable(name,num,DOUBLE);
 
-    } else if(i % 3 == 2) {
-      char* var_name=malloc(sizeof(char)*30);
-      strcpy(var_name,name);
-      addVariable_to_VarTable(name,var_name,STRING);
-    }
-  }
-  // printTable();
-  // for(int i=0; i< 49; i++) {
-  //   removeVariable_from_VarTable(string_array[i]);
-  // }
-  printTable();
-  clearVarTable();
-}
+//     } else if(i % 3 == 2) {
+//       char* var_name=malloc(sizeof(char)*30);
+//       strcpy(var_name,name);
+//       addVariable_to_VarTable(name,var_name,STRING);
+//     }
+//   }
+//   // printTable();
+//   // for(int i=0; i< 49; i++) {
+//   //   removeVariable_from_VarTable(string_array[i]);
+//   // }
+//   printTable();
+//   clearVarTable();
+// }
 
 

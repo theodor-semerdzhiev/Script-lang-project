@@ -41,7 +41,6 @@ typedef struct {
   union data_types data;
 } Variable;
 
-void freeStringStruct(String *str);
 void freeVariableStruct(Variable *var);
 Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_t len_of_str_data);
 void modifyVariable(Variable *varStruct, char* variable_name, void* data, TYPE type_of_var);

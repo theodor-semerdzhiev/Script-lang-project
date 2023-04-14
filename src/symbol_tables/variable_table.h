@@ -1,7 +1,7 @@
 #ifndef VARIABLE_TABLE_H
 #define VARIABLE_TABLE_H
 
-#include "../variables/types.h"
+#include "../types/types.h"
 
 extern struct Variable_Table *Variable_Table_;
 

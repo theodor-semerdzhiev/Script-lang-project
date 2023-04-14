@@ -11,30 +11,38 @@
       //   "./lineparsing.c", 
       //   "./syntax_analysis/let_parser.c", 
       //   "../symbol_tables/keyword_table.c", 
-      //   "../variables/variable_parser.c", 
-      //   "../variables/types.c", 
-      //   "../variables/types.h", 
+      //   "../types/type_parser.c", 
+      //   "../types/types.c", 
+      //   "../types/types.h", 
       //   "../symbol_tables/variable_table.c",
+      //   "-o",
+      //   "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      // ],
+      // "args": [
+      //   "-fdiagnostics-color=always",
+      //   "-g",
+      //   ".\\variable_table.c",
+      //   "..\\syntax_tree\\lineparsing.c",
+      //   "..\\types\\types.c",
+      //   "-o",
+      //   "${fileDirname}\\${fileBasenameNoExtension}.exe"
+      // ],
+      // "args": [
+      //   "-fdiagnostics-color=always",
+      //   "-g",
+      //   "${file}",
+      //   "..\\types\\types.h",
       //   "-o",
       //   "${fileDirname}\\${fileBasenameNoExtension}.exe"
       // ],
       "args": [
         "-fdiagnostics-color=always",
         "-g",
-        ".\\variable_table.c",
-        "..\\syntax_tree\\lineparsing.c",
-        "..\\variables\\types.c",
+        "${file}",
+        "./syntax_tree/lineparsing.c",
         "-o",
         "${fileDirname}\\${fileBasenameNoExtension}.exe"
       ],
-      // "args": [
-      //   "-fdiagnostics-color=always",
-      //   "-g",
-      //   "${file}",
-      //   "..\\variables\\types.h",
-      //   "-o",
-      //   "${fileDirname}\\${fileBasenameNoExtension}.exe"
-      // ],
       "options": {
         "cwd": "${fileDirname}"
       },

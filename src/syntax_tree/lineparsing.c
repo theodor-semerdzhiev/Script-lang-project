@@ -14,6 +14,7 @@ int isLineEmpty(const char * line);
 inline void freeArrayOfStrings(char** str_arr);
 char* getNthToken(const char* str, int position);
 char* copyString(const char* stringtocopy);
+char* getStringFromDelimiter(char *line, char delimiter);
 
 //Returns an array of strings corresponding to each token in the input string 
 //Make sure to call freeArrayOfString(char**, int) to free returned char**
@@ -140,4 +141,30 @@ char* copyString(const char* stringtocopy) {
   return newString;
 }
 
+//extracts a string encloses by delimiter char
+//returns NULL if not delimiter is found
+char* getStringFromDelimiter(char *line, char delimiter) {
+  int str_len=0; //records the length of the delimited string
+  char *line_ptr=line; //keeps track of when the delimited string starts
+  boolean asmetDelimiterMark=FALSE;
 
+  for(int i=0; line[i] != delimiter || asmetDelimiterMark==FALSE; i++) {
+    if(asmetDelimiterMark == TRUE) str_len++;
+    //if delimiter as never closed
+    if(line[i] == '\0') 
+      return NULL;
+    if(line[i] == delimiter) {
+      asmetDelimiterMark=TRUE;
+      line_ptr++;
+    } else if(asmetDelimiterMark == FALSE) {
+      line_ptr++;
+    }
+  }
+  //allocates memory for string
+  char* parsed_str=malloc(sizeof(char)*str_len+1);
+  for(int i=0; i < str_len; i++) {
+    parsed_str[i]=line_ptr[i];
+  }
+  parsed_str[str_len]='\0';
+  return parsed_str;
+}

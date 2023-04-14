@@ -5,10 +5,11 @@
 typedef enum{FALSE=0, TRUE=1} boolean;
 
 TYPE getAssignmentType(const char* line);
-char* getStringFromQuotationMarks(char *line);
+char* getStringFromDelimiter_withTrailingWhitespace(char *line, char delimiter);
 int* getInteger(const char* line);
 double* getDouble(const char *line);
 int checkAssignmentSyntax(const char* line, const char* assignment);
+String* getVariableAssignmentName(char* line, int checkTrailingWhitespace);
 
 //this function given the input is a pointer to a string containing some variable assignment (after the '=')
 //return UNKNOWN if there is a syntax error
@@ -43,23 +44,23 @@ TYPE getAssignmentType(const char* line) {
 }
 
 
-//used to extract String enclosed in a quotation assignment
-//char* line must point after the '=' symbol
-//returned string is malloced
-char* getStringFromQuotationMarks(char *line) {
+// used to extract String enclosed in a delimiter
+// char* line must point after the '=' symbol
+// returned string is malloced
+char* getStringFromDelimiter_withTrailingWhitespace(char *line, char delimiter) {
   int str_len=0;
   char *line_ptr=line;
-  boolean asmetQuotationMark=FALSE;
+  boolean asmetDelimiter=FALSE;
 
-  for(int i=0; line[i] != '"' || asmetQuotationMark==FALSE; i++) {
-    if(asmetQuotationMark == TRUE) str_len++;
+  for(int i=0; line[i] != delimiter || asmetDelimiter==FALSE; i++) {
+    if(asmetDelimiter == TRUE) str_len++;
     //if " " is never closed
     if(line[i] == '\0') 
       return NULL;
-    if(line[i] == '"') {
-      asmetQuotationMark=TRUE;
+    if(line[i] == delimiter) {
+      asmetDelimiter=TRUE;
       line_ptr++;
-    } else if(asmetQuotationMark == FALSE) {
+    } else if(asmetDelimiter == FALSE) {
       line_ptr++;
     }
   }
@@ -144,6 +145,46 @@ int checkAssignmentSyntax(const char* line, const char* assignment) {
   return 1;
 }
 
+//gets a variable name (ex: $num)
+//stores it in a String struct
+//checkTrailingWhitespace checks wether to check for an empty line after the variable name
+//make sure to call free on the string struct properly 
+String* getVariableAssignmentName(char* line, int checkTrailingWhitespace) {
+  boolean asMetDollar=FALSE; //keeps track if we have met a $ sign
+  char* str_ptr=line; 
+  int variable_name_length=0;
 
+  for(int i=0; line[i] != '\0'; i++) {
+    if(line[i] == '$') {
+      asMetDollar=TRUE;
+      str_ptr++;
+      continue;
+    } else if(asMetDollar == TRUE && isspace(line[i]) != 0) {
+      break;
+    } else if(asMetDollar == TRUE && isalnum(line[i]) == 0) {
+      break;
+    } else if(asMetDollar == TRUE) {
+      variable_name_length++;
+    //if asMetDollar is FALSE but we have encountered character
+    } else if(isspace(line[i]) == 0) {
+      return NULL;
+    } else {
+      str_ptr++;
+    }
+  }
+  if(isalpha(str_ptr[0]) == 0) return NULL;
+  if(checkTrailingWhitespace == 1 && isLineEmpty(str_ptr+variable_name_length) == 0) return NULL;
+
+  char* var_name=malloc(sizeof(char)*variable_name_length+1);
+  for(int i=0; i<variable_name_length; i++) {
+    var_name[i]=str_ptr[i];
+  }
+  var_name[variable_name_length]='\0';
+
+  String* str=malloc(sizeof(String));
+  str->string=var_name;
+  str->string=variable_name_length;
+  return str;
+}
 
 
