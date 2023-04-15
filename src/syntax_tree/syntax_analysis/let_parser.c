@@ -26,6 +26,10 @@ static TYPE AssignArray(let_node_instruction *let_,char* line);
 static TYPE AssignBool(let_node_instruction *let_,char* line);
 static TYPE AssignNull(let_node_instruction *let_,char* line);
 static TYPE AssignFunc(let_node_instruction *let_, char* line);
+static TYPE AssignVar(let_node_instruction *let_, char* line);
+static TYPE AssignArithmeticExpression(let_node_instruction *let_, char* line);
+static TYPE AssignBoolExpression(let_node_instruction *let_, char* line);
+
 
 PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineNumber) {
   char* line_ptr=&(line[4]);
@@ -132,8 +136,13 @@ static TYPE AssignType(let_node_instruction *let_,char* line) {
     case FUNCTION:
       return AssignFunc(let_,line);
     case VAR:
-      printf("this: %s is a var", line);
-      return VAR;      
+      return AssignVar(let_,line);   
+    //TODO
+    case ARITHMETIC_EXPRESSION:
+      return AssignArithmeticExpression(let_,line);
+    //TODO
+    case BOOL_EXPRESSION:
+      return AssignBoolExpression(let_,line);
     case UNKNOWN:
       break;
     default:
@@ -155,7 +164,7 @@ static TYPE AssignInteger(let_node_instruction *let_,char* line) {
   }
   let_->var=createVariableStruct(INTEGER,let_->var_name,integer,-1);
   free(integer);
-  printf("integer: %d \n", let_->var->data.integer);
+  printf("%s: %d \n",let_->var_name, let_->var->data.integer);
   return INTEGER;
 }
 
@@ -172,7 +181,7 @@ static TYPE AssignDouble(let_node_instruction *let_,char* line) {
   }
   let_->var=createVariableStruct(DOUBLE,let_->var_name,double_precision,-1);
   free(double_precision);
-  printf("double: %f \n", let_->var->data.floatingpoint);
+  printf("%s: %f \n", let_->var_name ,let_->var->data.floatingpoint);
   return DOUBLE;
 
 }
@@ -189,7 +198,7 @@ static TYPE AssignString(let_node_instruction *let_,char* line) {
     return UNKNOWN;
   }
   let_->var=createVariableStruct(STRING,let_->var_name,str,strlen(str));
-  printf("string: %s \n", let_->var->data.str->string);
+  printf("%s: %s \n", let_->var_name, let_->var->data.str->string);
   return STRING;
 }
 
@@ -220,7 +229,7 @@ static TYPE AssignBool(let_node_instruction *let_,char* line) {
   } else {
     return UNKNOWN;
   }
-  printf("BOOLEAN: %d\n", let_->var->data.boolean);
+  printf("%s: %d\n",let_->var_name, let_->var->data.boolean);
   return BOOL;
 }
 
@@ -232,18 +241,78 @@ return UNKNOWN IF syntax is not proper
 static TYPE AssignNull(let_node_instruction *let_,char* line) {
   if(checkAssignmentSyntax(line, "null") == 0) return UNKNOWN;
   let_->var=createVariableStruct(_NULL,let_->var_name,NULL,-1);
-  printf("NULL: %s is NULL\n", let_->var_name);
+  printf("%s: %s is NULL\n", let_->var_name, let_->var_name);
   return _NULL;
 }
 
 /*
 parses NULL value and mallocs variable struct 
 and assigns it to let instructions struct var field
-return UNKNOWN IF syntax is not proper
+return UNKNOWN if syntax is not proper
 TODO
 */
 static TYPE AssignFunc(let_node_instruction *let_, char* line) {      
   printf("this: %s is a function", line);
   return FUNCTION;
+}
+
+
+/*
+Parses variable name and assigns it to the let instructions struct var field
+returns UNKNOWN if syntax is not proper
+*/
+static TYPE AssignVar(let_node_instruction *let_, char* line) {      
+  String* var_name = getVariableAssignmentName(line,1);
+  //if getVariableAssignmentName(line,1) return NULL, means syntax is incorrect
+  if(var_name == NULL) return UNKNOWN;
+  Variable* var = createVariableStruct(VAR, let_->var_name,var_name->string,var_name->length);
+  free(var_name); //frees String struct (not the actual malloced var_name->string)
+  let_->var=var;
+
+  printf("%s: var %s", let_->var_name,let_->var->data.str->string);
+  return VAR;
+}
+
+//TODO
+static TYPE AssignArithmeticExpression(let_node_instruction *let_, char* line) {
+  char math_word[]="math";
+  int index_count=0;
+  //gets the first 4 non whitespace chars to check if proper "math" expression is encountered
+  for(int i=0; line[i] != '\0' && index_count < 4; i++) {
+    if(isspace(line[i]) != 0) {
+      continue;
+    } else if(line[i] == math_word[index_count]) {
+      index_count++;
+    } else {
+      return UNKNOWN;
+    }
+  }
+
+  //TODO --> WRITE CODE FOR PARSING ARITHMETIC EXPRESSION
+
+
+  printf("\nmath Expression"); //for testing
+  return ARITHMETIC_EXPRESSION;
+}
+
+//TODO
+static TYPE AssignBoolExpression(let_node_instruction *let_, char* line) {
+  char bool_word[]="bool";
+  int index_count=0;
+  //gets the first 4 non whitespace chars to check if proper "bool" expression is encountered
+  for(int i=0; line[i] != '\0' && index_count < 4; i++) {
+    if(isspace(line[i]) != 0) {
+      continue;
+    } else if(line[i] == bool_word[index_count]) {
+      index_count++;
+    } else {
+      return UNKNOWN;
+    }
+  }
+  //TODO --> WRITE CODE FOR PARSING BOOLEAN EXPRESSION
+
+
+  printf("\nBoolean Expression"); //for testing
+  return BOOL_EXPRESSION;
 }
 

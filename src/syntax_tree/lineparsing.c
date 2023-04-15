@@ -5,7 +5,7 @@
 
 typedef enum{FALSE=0, TRUE=1} boolean;
 
-char** parseLine(char* str, int num_of_tokens, int length_str);
+char** tokenizeString(char* str, int num_of_tokens, int length_str);
 int getCharsBeforeWhiteSpace(const char * tmp_ptr);
 int getTokenLength(const char* start);
 char* mallocString(const char* str, unsigned int length);
@@ -14,11 +14,11 @@ int isLineEmpty(const char * line);
 inline void freeArrayOfStrings(char** str_arr);
 char* getNthToken(const char* str, int position);
 char* copyString(const char* stringtocopy);
-char* getStringFromDelimiter(char *line, char delimiter);
+char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter);
 
 //Returns an array of strings corresponding to each token in the input string 
-//Make sure to call freeArrayOfString(char**, int) to free returned char**
-char** parseLine(char* str, int num_of_tokens, int length_str) {
+//Make sure to call freeArrayOfString(char**, int) to free returned char** array
+char** tokenizeString(char* str, int num_of_tokens, int length_str) {
   if(num_of_tokens == 0 || length_str == 0) return NULL;
   char *tmp_ptr=str;
   char ** parsed_line=malloc(sizeof(char*)*num_of_tokens+1);
@@ -141,19 +141,20 @@ char* copyString(const char* stringtocopy) {
   return newString;
 }
 
-//extracts a string encloses by delimiter char
+//extracts a string encloses by delimiter chars
 //returns NULL if not delimiter is found
-char* getStringFromDelimiter(char *line, char delimiter) {
+//make sure to free returned string after use
+char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter) {
   int str_len=0; //records the length of the delimited string
   char *line_ptr=line; //keeps track of when the delimited string starts
   boolean asmetDelimiterMark=FALSE;
 
-  for(int i=0; line[i] != delimiter || asmetDelimiterMark==FALSE; i++) {
+  for(int i=0; line[i] != closing_delimiter || asmetDelimiterMark==FALSE; i++) {
+
+    if(line[i] == '\0') return NULL;
     if(asmetDelimiterMark == TRUE) str_len++;
     //if delimiter as never closed
-    if(line[i] == '\0') 
-      return NULL;
-    if(line[i] == delimiter) {
+    if(line[i] == opening_delimiter && asmetDelimiterMark==FALSE) {
       asmetDelimiterMark=TRUE;
       line_ptr++;
     } else if(asmetDelimiterMark == FALSE) {

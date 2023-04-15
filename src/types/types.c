@@ -24,29 +24,33 @@ Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_
   Variable* node=malloc(sizeof(Variable));
   node->type=type;
   node->name=variable_name;
-  switch(type) {
-    case STRING:
-      String* str=malloc(sizeof(String));
-      str->string=(char*)data;
-      str->length=len_of_str_data;
-      node->data.str=str;
-      break;
-    case INTEGER:
-      node->data.integer= *(int*) data;
-      break;
-    case DOUBLE:
-      node->data.floatingpoint= *(double*) data;
-      break;
-    case BOOL:
-      node->data.boolean = *(int*) data;
-      break;
-    case ARRAY:
-      //TODO
-      break; 
-    case _NULL:
-      break;
-    default:
-      break;
+
+  if(type == STRING) {
+    String* str=malloc(sizeof(String));
+    str->string=(char*)data;
+    str->length=len_of_str_data;
+    node->data.str=str;
+  } else if(type == INTEGER) {
+    node->data.integer= *(int*) data;
+  } else if(type == DOUBLE) {
+    node->data.floatingpoint= *(double*) data;
+  } else if(type == BOOL) {
+    node->data.boolean = *(int*) data;
+  } else if(type == ARRAY) {
+    //TODO
+  } else if(type == _NULL) {
+    //NO OPERATION IS NEEDED
+  } else if(type == VAR) {
+    String* str1=malloc(sizeof(String));
+    str1->string=(char*)data;
+    str1->length=len_of_str_data;
+    node->data.str=str1;
+  } else if(type == FUNCTION) {
+    //TODO
+  } else if(type == ARITHMETIC_EXPRESSION) {
+    //TODO
+  } else if(type == BOOL_EXPRESSION) {
+    //TODO
   }
   return node;
 }
@@ -55,38 +59,50 @@ void modifyVariable(Variable *varStruct, char* variable_name, void* data, TYPE t
   //changes the name and TYPE enum
   free(varStruct->name);
   varStruct->name=variable_name;
-  switch(type_of_var) {
-    case STRING:
-      //if the struct is already a string, then we can just modify the exsisting struct
-      if(varStruct->type ==STRING) {
-        free(varStruct->data.str->string);
-        varStruct->data.str->string=(char*) data;
-        varStruct->data.str->length=strlen((char*) data);
-        
-      //otherwise we create a new string struct
-      } else {
-        String *newStr=malloc(sizeof(newStr));
-        newStr->length=strlen(variable_name);
-        newStr->string=(char*)data;
-        varStruct->data.str=newStr;
-      }
-      break;
-    case ARRAY:
-      //TODO
-      break;
-    case INTEGER:
-      varStruct->data.integer= *(int*) data;
-      break;
-    case DOUBLE:
-      varStruct->data.floatingpoint= *(double*) data;
-      break;
-    case BOOL:
-      varStruct->data.boolean= *(int*) data;
-      break; 
-    default:
-      break;
+
+  //frees string if we are not changing the type to a string 
+  if(varStruct->type == STRING && type_of_var != STRING) {
+    free(varStruct->data.str->string);
+    free(varStruct->data.str);
   }
+  if(type_of_var == STRING) {
+    //if the struct is already a string, then we can just modify the exsisting struct
+    if(varStruct->type ==STRING) {
+      free(varStruct->data.str->string);
+      varStruct->data.str->string=(char*) data;
+      varStruct->data.str->length=strlen((char*) data);
+      
+    //otherwise we create a new string struct
+    } else {
+      String *newStr=malloc(sizeof(newStr));
+      newStr->length=strlen(variable_name);
+      newStr->string=(char*)data;
+      varStruct->data.str=newStr;
+    }
+  } else if(type_of_var == ARRAY) {
+    //TODO
+    
+  } else if(type_of_var == INTEGER) {
+    varStruct->data.integer= *(int*) data;
+    
+  } else if(type_of_var == DOUBLE) {
+    varStruct->data.floatingpoint= *(double*) data;
+    
+  } else if(type_of_var == BOOL) {
+    varStruct->data.boolean= *(int*) data;
+    
+  } else if(type_of_var == _NULL) {
+    //NO OPERATION IS NEEDED
+  } else if(type_of_var == FUNCTION) {
+    //TODO
+  } else if(type_of_var == ARITHMETIC_EXPRESSION) {
+    //TODO
+  } else if(type_of_var == BOOL_EXPRESSION) { 
+    //TODO
+  }
+    
   varStruct->type=type_of_var;
 }
+
 
 

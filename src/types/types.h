@@ -12,6 +12,8 @@ typedef enum{
   FUNCTION,
   VAR,
   _NULL,
+  ARITHMETIC_EXPRESSION,
+  BOOL_EXPRESSION,
   UNKNOWN
 } TYPE;
 
@@ -24,9 +26,9 @@ typedef struct {
 typedef struct {
   TYPE type;
   int length;
-
 } Array;
 
+// String *Str could also be used for VAR type
 union data_types{
   int integer;
   double floatingpoint;

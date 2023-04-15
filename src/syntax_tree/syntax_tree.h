@@ -34,6 +34,7 @@ typedef enum {
     END,
     RETURN,
     EXIT,
+    COMMENT,
     INVALID
 } COMMAND;
 

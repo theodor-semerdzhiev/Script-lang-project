@@ -24,6 +24,10 @@ TYPE getAssignmentType(const char* line) {
       return _NULL;
     if(line[i] == 't' || line[i] =='f')
       return BOOL;
+    if(line[i] == 'm')
+      return ARITHMETIC_EXPRESSION;
+    if(line[i] == 'b')
+      return BOOL_EXPRESSION;
     if(isalpha(line[i]) != 0) 
       return UNKNOWN;
     if(line[i] == '[') //might change
@@ -147,7 +151,7 @@ int checkAssignmentSyntax(const char* line, const char* assignment) {
 
 //gets a variable name (ex: $num)
 //stores it in a String struct
-//checkTrailingWhitespace checks wether to check for an empty line after the variable name
+//checkTrailingWhitespace checks for an empty line after the variable name (0 = no check, 1 = check)
 //make sure to call free on the string struct properly 
 String* getVariableAssignmentName(char* line, int checkTrailingWhitespace) {
   boolean asMetDollar=FALSE; //keeps track if we have met a $ sign
@@ -183,7 +187,7 @@ String* getVariableAssignmentName(char* line, int checkTrailingWhitespace) {
 
   String* str=malloc(sizeof(String));
   str->string=var_name;
-  str->string=variable_name_length;
+  str->length=variable_name_length;
   return str;
 }
 
