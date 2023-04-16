@@ -6,8 +6,8 @@
 #include "./syntax_analysis/let_parser.h"
 #include "../symbol_tables/keyword_table.h"
 #include "../symbol_tables/variable_table.h"
-
-typedef enum{FALSE=0, TRUE=1} boolean;
+#include "./syntax_analysis/shout_parser.h"
+#include "../bool.h"
 
 static PARSER_EXIT_CODE InitializeCommand(CommandList* syntaxtree, char *buffer, int linenumber);
 void addCommmand(CommandList *list, struct Instruction *instruc);
@@ -88,15 +88,21 @@ PARSER_EXIT_CODE parse_syntax_tree(CommandList *instruc_list, char* script_name)
 
 static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer, int lineNumber) {
   char *first_token = getNthToken(buffer,1);
+
+  //make sure to move pointer to the beginning of the first token
+  while(*buffer != first_token[0]) 
+    buffer++; 
+  
   if(first_token[0] == '#') return CLEAN_EXIT; //if line is a comment
   switch(Keyword_Hashmap_get(first_token)) {
     case LET:
+      free(first_token);
       return create_let_instruction(syntaxtree,buffer,lineNumber);
+    case SHOUT:
+      return create_shout_instruction(syntaxtree,buffer,lineNumber);
     //TODO
     case SET:
       return CLEAN_EXIT;  
-    case SHOUT:
-      return CLEAN_EXIT;
     case IF:
       return CLEAN_EXIT;
     case THEN:

@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-
-typedef enum{FALSE=0, TRUE=1} boolean;
+#include "../types/types.h"
+#include "../bool.h"
 
 char** tokenizeString(char* str, int num_of_tokens, int length_str);
 int getCharsBeforeWhiteSpace(const char * tmp_ptr);
@@ -11,10 +11,10 @@ int getTokenLength(const char* start);
 char* mallocString(const char* str, unsigned int length);
 int* getLineCounts(const char* str);
 int isLineEmpty(const char * line);
-inline void freeArrayOfStrings(char** str_arr);
+void freeArrayOfStrings(char** str_arr);
 char* getNthToken(const char* str, int position);
 char* copyString(const char* stringtocopy);
-char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter);
+char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter, int toTrimString);
 
 //Returns an array of strings corresponding to each token in the input string 
 //Make sure to call freeArrayOfString(char**, int) to free returned char** array
@@ -36,7 +36,7 @@ char** tokenizeString(char* str, int num_of_tokens, int length_str) {
 
 //frees an array of Strings
 //useful to be called after char** parseLine
-inline void freeArrayOfStrings(char** str_arr) {
+void freeArrayOfStrings(char** str_arr) {
   for(int i=0; str_arr[i] != NULL; i++) {
     free(str_arr[i]);
   }
@@ -144,7 +144,9 @@ char* copyString(const char* stringtocopy) {
 //extracts a string encloses by delimiter chars
 //returns NULL if not delimiter is found
 //make sure to free returned string after use
-char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter) {
+//toTrimString == 1 --> will remove all whitespace from returned string
+//toTrimString == 0 --> will NOT remove all whitespace from returned string
+char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter, int toTrimString) {
   int str_len=0; //records the length of the delimited string
   char *line_ptr=line; //keeps track of when the delimited string starts
   boolean asmetDelimiterMark=FALSE;
@@ -163,8 +165,11 @@ char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_de
   }
   //allocates memory for string
   char* parsed_str=malloc(sizeof(char)*str_len+1);
+  int parsed_str_count=0;
   for(int i=0; i < str_len; i++) {
-    parsed_str[i]=line_ptr[i];
+    if(toTrimString == 1 && isspace(line_ptr[i]) != 0) continue;
+    parsed_str[parsed_str_count]=line_ptr[i];
+    parsed_str_count++;
   }
   parsed_str[str_len]='\0';
   return parsed_str;

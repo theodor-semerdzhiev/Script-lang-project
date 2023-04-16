@@ -1,21 +1,20 @@
 #include "types.h"
 #include "../syntax_tree/lineparsing.h"
 #include <string.h>
+#include "../bool.h"
 
-typedef enum{FALSE=0, TRUE=1} boolean;
-
-TYPE getAssignmentType(const char* line);
+TYPE getTypeHint(const char* line);
 char* getStringFromDelimiter_withTrailingWhitespace(char *line, char delimiter);
 int* getInteger(const char* line);
 double* getDouble(const char *line);
 int checkAssignmentSyntax(const char* line, const char* assignment);
-String* getVariableAssignmentName(char* line, int checkTrailingWhitespace);
+String* getVariableName(char* line, int checkTrailingWhitespace);
 
 //this function given the input is a pointer to a string containing some variable assignment (after the '=')
 //return UNKNOWN if there is a syntax error
 //this function stops after seeing a '[', a number or '"'
 //it does NOT check if syntax is proper
-TYPE getAssignmentType(const char* line) {
+TYPE getTypeHint(const char* line) {
   boolean metNumber=FALSE;
   for(int i=0; line[i] != '\0' ; i++) {
     if(isspace(line[i]) != 0)
@@ -153,7 +152,7 @@ int checkAssignmentSyntax(const char* line, const char* assignment) {
 //stores it in a String struct
 //checkTrailingWhitespace checks for an empty line after the variable name (0 = no check, 1 = check)
 //make sure to call free on the string struct properly 
-String* getVariableAssignmentName(char* line, int checkTrailingWhitespace) {
+String* getVariableName(char* line, int checkTrailingWhitespace) {
   boolean asMetDollar=FALSE; //keeps track if we have met a $ sign
   char* str_ptr=line; 
   int variable_name_length=0;

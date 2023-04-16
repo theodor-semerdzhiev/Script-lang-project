@@ -2,12 +2,13 @@
 #include "../../types/types.h"
 #include "../syntax_tree.h"
 #include "../../types/type_parser.h"
+#include "./let_parser.h"
 
-typedef struct{
-  char* var_name;
-  TYPE data_type;
-  Variable* var;
-} let_node_instruction;
+// typedef struct{
+//   char* var_name;
+//   TYPE data_type;
+//   Variable* var;
+// } let_node_instruction;
 
 
 typedef struct {
@@ -118,7 +119,7 @@ static int checkSyntaxEqualSymbol(char* line) {
 
 //creates the proper variable struct for the let_node_instructions struct
 static TYPE AssignType(let_node_instruction *let_,char* line) {
-  let_->data_type=getAssignmentType(line);
+  let_->data_type=getTypeHint(line);
   switch(let_->data_type) {
     case INTEGER:
       return AssignInteger(let_,line);
@@ -262,7 +263,7 @@ Parses variable name and assigns it to the let instructions struct var field
 returns UNKNOWN if syntax is not proper
 */
 static TYPE AssignVar(let_node_instruction *let_, char* line) {      
-  String* var_name = getVariableAssignmentName(line,1);
+  String* var_name = getVariableName(line,1);
   //if getVariableAssignmentName(line,1) return NULL, means syntax is incorrect
   if(var_name == NULL) return UNKNOWN;
   Variable* var = createVariableStruct(VAR, let_->var_name,var_name->string,var_name->length);
@@ -289,9 +290,10 @@ static TYPE AssignArithmeticExpression(let_node_instruction *let_, char* line) {
   }
 
   //TODO --> WRITE CODE FOR PARSING ARITHMETIC EXPRESSION
+  char* arithmetic_expression = getStringFromDelimiter(line,'(',')',1);
 
-
-  printf("\nmath Expression"); //for testing
+  printf("\nmath Expression: %s", arithmetic_expression); //for testing
+  free(arithmetic_expression);
   return ARITHMETIC_EXPRESSION;
 }
 
@@ -311,8 +313,10 @@ static TYPE AssignBoolExpression(let_node_instruction *let_, char* line) {
   }
   //TODO --> WRITE CODE FOR PARSING BOOLEAN EXPRESSION
 
+  char* arithmetic_expression = getStringFromDelimiter(line,'(',')',1);
 
-  printf("\nBoolean Expression"); //for testing
+  printf("\nBool Expression: %s", arithmetic_expression); //for testing
+  free(arithmetic_expression);
   return BOOL_EXPRESSION;
 }
 

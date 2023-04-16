@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "../types/type_parser.h"
 
 char** tokenizeString(char* str, int num_of_tokens, int length_str);
 int getCharsBeforeWhiteSpace(const char * tmp_ptr);
@@ -15,5 +16,5 @@ int isLineEmpty(const char * line);
 void freeArrayOfStrings(char** str_arr);
 char* getNthToken(const char* str, int position);
 char* copyString(const char* stringtocopy);
-char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter);
+char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter, int toTrimString);
 #endif 

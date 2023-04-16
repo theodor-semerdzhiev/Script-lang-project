@@ -15,6 +15,8 @@
         "../types/types.c", 
         "../types/types.h", 
         "../symbol_tables/variable_table.c",
+        "./syntax_analysis/shout_parser.c",
+        "../bool.h",
         "-o",
         "${fileDirname}\\${fileBasenameNoExtension}.exe"
       ],
