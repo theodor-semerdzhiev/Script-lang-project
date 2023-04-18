@@ -3,7 +3,9 @@
 
 #include <stddef.h>
 
-typedef enum{
+typedef struct List List;
+
+typedef enum {
   INTEGER,
   DOUBLE,
   STRING,
@@ -22,19 +24,12 @@ typedef struct {
   int length;
 } String;
 
-//TODO to be implemented
-typedef struct {
-  TYPE type;
-  int length;
-} Array;
-
-// String *Str could also be used for VAR type
-union data_types{
+union data_types {
   int integer;
   double floatingpoint;
   String *str;
   int boolean;
-  //arrays to be added TODO
+  List *array;
 };
 
 typedef struct {
@@ -43,7 +38,14 @@ typedef struct {
   union data_types data;
 } Variable;
 
+typedef struct List {
+  int length;
+  int Capacity;
+  Variable** list;
+} List;
+
 void freeVariableStruct(Variable *var);
 Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_t len_of_str_data);
 void modifyVariable(Variable *varStruct, char* variable_name, void* data, TYPE type_of_var);
+
 #endif 

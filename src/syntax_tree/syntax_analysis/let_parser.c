@@ -1,8 +1,9 @@
-#include "../lineparsing.h"
+#include "../../utils/lineparsing.h"
 #include "../../types/types.h"
 #include "../syntax_tree.h"
 #include "../../types/type_parser.h"
 #include "./let_parser.h"
+#include "../../types/lists.h"
 
 // typedef struct{
 //   char* var_name;
@@ -16,7 +17,6 @@ typedef struct {
   int length;
 } var_name;
 
-PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineNumber);
 static var_name* getValidVarName(char* line);
 static int checkSyntaxEqualSymbol(char* line);
 static TYPE AssignType(let_node_instruction *let_,char* line);
@@ -209,9 +209,23 @@ return UNKNOWN IF syntax is not proper
 TODO
 */
 static TYPE AssignArray(let_node_instruction *let_,char* line) {
+  while(*line != '[' || *line != '\0') 
+    line++;
+  printf("1");
+  if(*line == '\0') return UNKNOWN;
 
+  while(*line != ']' || *line != '\0')
+    line++;
+  
+  if(*line == '\0') return UNKNOWN;
+  
+  printf("array");
 
-  return INTEGER;
+  //initial size is 8 by default
+  List* new_array=createList(8);
+
+  let_->var=createVariableStruct(ARRAY,let_->var_name,new_array,-1);
+  return ARRAY;
 }
 
 /*

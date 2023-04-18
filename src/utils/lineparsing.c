@@ -4,17 +4,7 @@
 #include <string.h>
 #include "../types/types.h"
 #include "../bool.h"
-
-char** tokenizeString(char* str, int num_of_tokens, int length_str);
-int getCharsBeforeWhiteSpace(const char * tmp_ptr);
-int getTokenLength(const char* start);
-char* mallocString(const char* str, unsigned int length);
-int* getLineCounts(const char* str);
-int isLineEmpty(const char * line);
-void freeArrayOfStrings(char** str_arr);
-char* getNthToken(const char* str, int position);
-char* copyString(const char* stringtocopy);
-char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter, int toTrimString);
+#include "lineparsing.h"
 
 //Returns an array of strings corresponding to each token in the input string 
 //Make sure to call freeArrayOfString(char**, int) to free returned char** array

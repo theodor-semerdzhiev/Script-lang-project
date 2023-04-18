@@ -1,14 +1,8 @@
-#include "types.h"
-#include "../syntax_tree/lineparsing.h"
 #include <string.h>
+#include "types.h"
+#include "../utils/lineparsing.h"
+#include "type_parser.h"
 #include "../bool.h"
-
-TYPE getTypeHint(const char* line);
-char* getStringFromDelimiter_withTrailingWhitespace(char *line, char delimiter);
-int* getInteger(const char* line);
-double* getDouble(const char *line);
-int checkAssignmentSyntax(const char* line, const char* assignment);
-String* getVariableName(char* line, int checkTrailingWhitespace);
 
 //this function given the input is a pointer to a string containing some variable assignment (after the '=')
 //return UNKNOWN if there is a syntax error
@@ -78,6 +72,9 @@ char* getStringFromDelimiter_withTrailingWhitespace(char *line, char delimiter) 
 }
 
 //parses integer
+//delimiter is the char expected after the num
+//checkTrailingWhiteSpace = 1  --> will check if the number is followed by whitespace
+//checkTrailingWhiteSpace = 0  --> will not check if the number is followed by whitespace
 //designed for the LET and SET keywords
 int* getInteger(const char* line) {
   boolean asMetNumber=FALSE;

@@ -1,7 +1,7 @@
 #include "../syntax_tree/syntax_tree.h"
 #include <stdlib.h>
 #include <string.h>
-#include "../syntax_tree/lineparsing.h"
+#include "../utils/lineparsing.h"
 
 #define KEYWORD_COUNT 17 //we could there is 18 keywords, but INVALID is not counted
 #define TABLE_SIZE 20 //how big the hash table should be 
@@ -30,9 +30,7 @@ static struct Keyword_Table *Keyword_Table_;
 
 static inline void addtoList(LinkedList *list, struct Node *keyword);
 static COMMAND findKeyword(LinkedList *list, const char * firstTokenOfLine);
-void createKeywordTable();
 static void Hashmap_add(char *keyword, COMMAND identifer);
-COMMAND Keyword_Hashmap_get(const char* firstTokenOfLine);
 static unsigned int hash(const char *str);
 static void printList(LinkedList *list);
 static void printTable(LinkedList **list);

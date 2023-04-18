@@ -4,7 +4,8 @@
 #include "../syntax_tree/syntax_tree.h"
 #include <stdlib.h>
 #include <string.h>
-#include "../syntax_tree/lineparsing.h"
+#include "../utils/lineparsing.h"
+
 
 extern struct Keyword_Table *Keyword_Table_;
 void createKeywordTable();

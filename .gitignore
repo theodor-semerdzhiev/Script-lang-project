@@ -1,1 +1,5 @@
 compile.txt
+*.exe
+*.o
+*.gch
+.vscode

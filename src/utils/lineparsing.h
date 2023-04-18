@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "../types/type_parser.h"
 
 char** tokenizeString(char* str, int num_of_tokens, int length_str);
 int getCharsBeforeWhiteSpace(const char * tmp_ptr);

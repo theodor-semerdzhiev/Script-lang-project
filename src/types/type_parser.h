@@ -1,9 +1,10 @@
 #ifndef TYPE_PARSER_H
 #define TYPE_PARSER_H
 
-#include "types.h"
-#include "../syntax_tree/lineparsing.h"
 #include <string.h>
+#include "types.h"
+#include "../utils/lineparsing.h"
+
 
 TYPE getTypeHint(const char* line);
 char* getStringFromDelimiter_withTrailingWhitespace(char *line, char delimiter);

@@ -1,5 +1,5 @@
-
-shout $num"adsada" $numwe "1231231"
+let num= []
+shout "adsada" $numwe "1231231"
 
 
 

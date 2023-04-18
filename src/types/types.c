@@ -3,22 +3,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-void freeVariableStruct(Variable* var);
-Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_t len_of_str_data);
-void modifyVariable(Variable *varStruct, char* variable_name, void* data, TYPE type_of_var);
-
 //frees Variable Struct properly
 void freeVariableStruct(Variable* var) {
   free(var->name);
   if(var->type==STRING) {
     free(var->data.str->string);
     free(var->data.str);
+  } else if(var->type==ARRAY) {
+    
   }
   free(var);
 }
 
 //return Variable struct with given parameters
-//NOTES len_of_str_data only matters if type is STRING (or Array, but this is not implemented yet...)
+//NOTES len_of_str_data only matters if type is STRING 
+//for array, the List* struct must have already been created and allocated
 Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_t len_of_str_data) {
   //mallocs
   Variable* node=malloc(sizeof(Variable));
@@ -38,6 +37,7 @@ Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_
     node->data.boolean = *(int*) data;
   } else if(type == ARRAY) {
     //TODO
+    node->data.array=(List*)data;
   } else if(type == _NULL) {
     //NO OPERATION IS NEEDED
   } else if(type == VAR) {

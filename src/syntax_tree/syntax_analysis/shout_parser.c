@@ -1,5 +1,5 @@
 #include <string.h>
-#include "../lineparsing.h"
+#include "../../utils/lineparsing.h"
 #include "../../types/types.h"
 #include "../syntax_tree.h"
 #include "../../types/type_parser.h"
@@ -27,18 +27,22 @@ TYPE create_shout_instruction(CommandList *list, char* line, int lineNumber) {
 
   while(*line != '\0') {
     //moves line pointer until the next declaration
-    while(*line != '$' && *line != '"' && *line != '\0') line++; 
+    while(isspace(*line) != 0) line++; 
     String *data=NULL;
-
+    
     //we referencing a variable
     if(*line == '$') {
       //gets the variable name
       data=getVariableName(line,0); 
-      if(data == NULL) return INVALID_VAR;
+      if(data == NULL) {
+        free(shout_instruc);
+        return INVALID_VAR;
+      }
       
     //referencing a string
     } else if(*line == '"') {
       data=malloc(sizeof(String));
+
       //gets the string from the "" delimiters
       data->string=getStringFromDelimiter(line,'"','"',0);
       
@@ -51,7 +55,6 @@ TYPE create_shout_instruction(CommandList *list, char* line, int lineNumber) {
 
     // if not $ or ", its invalid syntax
     } else {
-      free(data);
       free(shout_instruc);
       return INVALID_SYNTAX;
     }
@@ -65,7 +68,7 @@ TYPE create_shout_instruction(CommandList *list, char* line, int lineNumber) {
       line+=strlen(data->string)+2;
     } else {
       node->type=VAR;
-      line+=strlen(data->string)+1;
+      line+=data->length+1;
     }
 
     node->string=data->string;
@@ -74,13 +77,6 @@ TYPE create_shout_instruction(CommandList *list, char* line, int lineNumber) {
     
     free(data);
     addToList(shout_instruc,node);
-  }
-
-  //for testing
-  struct Node* node =shout_instruc->head;
-  while(node != NULL) {
-    printf("\n%s ", node->string); //for testing
-    node=node->next;
   }
 
   //creates instruction node

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "../types/types.h"
-#include "../syntax_tree/lineparsing.h"
+#include "../utils/lineparsing.h"
 
 //Node for the LinkedList
 struct Node {
@@ -28,14 +28,9 @@ static Variable_Table *Variable_Table_;
 
 static inline void addtoList(LinkedList *list, struct Node  *list_node);
 static struct Node* findVariableNode(LinkedList *list, const char* variable_name);
-void addVariable_to_VarTable(char* variable_name, void* data, TYPE type_of_var);
-void InitializeVariableTable(int initialSize);
-void removeVariable_from_VarTable(char *variable_name);
-int containsVariable(const char* varname);
-Variable *getVariable(const char *varname);
 static unsigned int hash(const char* var_name);
 static struct Node* replaceNode(LinkedList *list, char* variable_name, void* data, TYPE type_of_var);
-void clearVarTable();
+
 
 //adds to list
 static inline void addtoList(LinkedList *list, struct Node *list_node) {
@@ -125,7 +120,6 @@ void removeVariable_from_VarTable(char *variable_name) {
   struct Node* prev = NULL;
   while(tmp != NULL) {
     if(strcmp(tmp->var->name,variable_name) == 0) {
-      struct Node* next_node=tmp->next;
       if(prev == NULL) {
         list->head=tmp->next;
       } else {
@@ -133,6 +127,7 @@ void removeVariable_from_VarTable(char *variable_name) {
       }
       if(tmp->next == NULL) {
         list->tail=prev;
+        prev->next=NULL;
       }
       freeVariableStruct(tmp->var);
       free(tmp);
@@ -213,6 +208,23 @@ static void printList(LinkedList *list) {
         break;
       case DOUBLE:
         printf("TYPE: double, value = %f) --> ", ptr->var->data.floatingpoint);
+        break;
+      case BOOL:
+        printf("TYPE: boolean, value = %d) --> ", ptr->var->data.boolean);
+        break;
+      case ARRAY:
+        break;
+      case FUNCTION:
+        break;
+      case VAR:
+        break;
+      case _NULL:
+        break;
+      case ARITHMETIC_EXPRESSION:
+        break;
+      case BOOL_EXPRESSION:
+        break;
+      case UNKNOWN:
         break;
     }
     ptr=ptr->next;

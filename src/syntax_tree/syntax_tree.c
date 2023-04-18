@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "./lineparsing.h"
+#include "../utils/lineparsing.h"
 #include "./syntax_analysis/let_parser.h"
 #include "../symbol_tables/keyword_table.h"
 #include "../symbol_tables/variable_table.h"
@@ -131,20 +131,18 @@ static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer,
       return CLEAN_EXIT;
     case EXIT:
       return CLEAN_EXIT;
+    case COMMENT:
+      break;
     case INVALID:
       return UNDEFINED_KEYWORD;
   }
+  return CLEAN_EXIT;
 }
 
 
 
 
 int main(int argc, char *argv[]) {
-  char *c = "231213 123  123   123  231 1323 123 123          ";
-  int *arr = getLineCounts(c);  
-  //printf("%d %d\n", arr[0], arr[1]);
-  // free(arr);
-  // for(int i=0; i < arr[0]; i++) printf("%s ",line[i]);
 
   CommandList *instruc = create_Command_list();
   parse_syntax_tree(instruc, "test_script.txt");
