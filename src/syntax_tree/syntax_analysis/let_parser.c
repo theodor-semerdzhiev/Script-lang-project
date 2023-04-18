@@ -62,6 +62,8 @@ PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineN
     return INVALID_TYPE;
   }
   
+  free(var_name);
+  
   struct Instruction *instruction_node = malloc(sizeof(struct Instruction));
   instruction_node->next=NULL;
   instruction_node->command = LET;
@@ -209,12 +211,12 @@ return UNKNOWN IF syntax is not proper
 TODO
 */
 static TYPE AssignArray(let_node_instruction *let_,char* line) {
-  while(*line != '[' || *line != '\0') 
+  while(*line != '[' && *line != '\0') 
     line++;
   printf("1");
   if(*line == '\0') return UNKNOWN;
 
-  while(*line != ']' || *line != '\0')
+  while(*line != ']' && *line != '\0')
     line++;
   
   if(*line == '\0') return UNKNOWN;

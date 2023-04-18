@@ -138,15 +138,3 @@ static PARSER_EXIT_CODE InitializeCommand(CommandList *syntaxtree, char *buffer,
   }
   return CLEAN_EXIT;
 }
-
-
-
-
-int main(int argc, char *argv[]) {
-
-  CommandList *instruc = create_Command_list();
-  parse_syntax_tree(instruc, "test_script.txt");
-
-
-  return 0;
-}

@@ -18,13 +18,14 @@ SRCS = $(SYNTAX_TREE_DIR)/syntax_tree.c \
        $(TYPES_DIR)/types.c \
        $(SYMBOL_TABLES_DIR)/variable_table.c \
        $(SYNTAX_ANALYSIS_DIR)/shout_parser.c \
-       $(TYPES_DIR)/lists.c 
+       $(TYPES_DIR)/lists.c \
+       main.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)
 
 # Executable
-TARGET = interpreter
+TARGET = main
 
 # Rules
 all: $(TARGET)
