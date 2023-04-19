@@ -29,7 +29,7 @@ static Variable_Table *Variable_Table_;
 static inline void addtoList(LinkedList *list, struct Node  *list_node);
 static struct Node* findVariableNode(LinkedList *list, const char* variable_name);
 static unsigned int hash(const char* var_name);
-static struct Node* replaceNode(LinkedList *list, char* variable_name, void* data, TYPE type_of_var);
+static struct Node* replaceNode(LinkedList *list, Variable *new_var);
 
 
 //adds to list
@@ -58,14 +58,14 @@ static struct Node* findVariableNode(LinkedList *list, const char* variable_name
 }
 
 //iterates throught list, if proper node is found, type and data is modified
-static struct Node* replaceNode(LinkedList *list, char* variable_name, void* data, TYPE type_of_var) {
+static struct Node* replaceNode(LinkedList *list, Variable *new_var) {
   struct Node* ptr = list->head;
   while(ptr != NULL) {
-    if(strcmp(ptr->var->name,variable_name)==0) {
-      ptr->type=type_of_var;
+    if(strcmp(ptr->var->name,new_var->name) == 0) {
+      freeVariableStruct(ptr->var);
+      ptr->var=new_var;
+      ptr->type=new_var->type;
       
-      modifyVariable(ptr->var,variable_name,data,type_of_var);
-
       return ptr;
     }
     ptr=ptr->next;
@@ -77,19 +77,16 @@ static struct Node* replaceNode(LinkedList *list, char* variable_name, void* dat
 //adds variable to the hashtable
 //checks if variable_name is already in hashmap first
 //variable_name and data MUST be malloced before function call
-void addVariable_to_VarTable(char* variable_name, void* data, TYPE type_of_var) {
-  LinkedList *list = Variable_Table_->table[hash(variable_name)];
+void addVariable_to_VarTable(Variable* var) {
+  LinkedList *list = Variable_Table_->table[hash(var->name)];
 
   //if varriable name already in list, we simply modify node
-  if(replaceNode(list,variable_name,data,type_of_var) != NULL) 
+  if(replaceNode(list,var) != NULL) 
     return;
   struct Node* node = malloc(sizeof(struct Node));
-  Variable *variable;
-  if(type_of_var == STRING) variable=createVariableStruct(type_of_var,variable_name,data,strlen((char*)data));
-  else                      variable=createVariableStruct(type_of_var,variable_name,data,0);
   node->next=NULL;
-  node->type=type_of_var;
-  node->var=variable;
+  node->type=var->type;
+  node->var=var;
   addtoList(list,node);
   Variable_Table_->size++;
 }
@@ -233,7 +230,7 @@ static void printList(LinkedList *list) {
 }
 
 //used for debugging purposes
-static inline void printTable() {
+void printTable() {
   for(int i =0; i< Variable_Table_->length; i++) {
     printList(Variable_Table_->table[i]);
   }

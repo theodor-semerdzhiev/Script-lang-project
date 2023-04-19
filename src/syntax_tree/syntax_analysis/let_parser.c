@@ -4,6 +4,7 @@
 #include "../../types/type_parser.h"
 #include "./let_parser.h"
 #include "../../types/lists.h"
+#include "../../symbol_tables/variable_table.h"
 
 // typedef struct{
 //   char* var_name;
@@ -70,7 +71,7 @@ PARSER_EXIT_CODE create_let_instruction(CommandList *list, char* line, int lineN
   instruction_node->command_data=let_node;
   
   addCommmand(list,instruction_node);
-
+  addVariable_to_VarTable(let_node->var);
   return CLEAN_EXIT;
 }
 
