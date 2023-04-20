@@ -35,7 +35,15 @@ struct prefix_node {
   };
   struct prefix_node *left;
   struct prefix_node *right;
+};
 
+struct evaluated_expression {
+  TYPE type;
+  union {
+    int integer;
+    double floating_point;
+  };
+  
 };
 
 //expression Tree struct

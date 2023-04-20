@@ -16,4 +16,5 @@ void freeArrayOfStrings(char** str_arr);
 char* getNthToken(const char* str, int position);
 char* copyString(const char* stringtocopy);
 char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_delimiter, int toTrimString);
+char* getScopedDelimitedString(char* line, char opening_delimiter, char closing_delimiter, int Checktrailing_WhiteSpace);
 #endif 

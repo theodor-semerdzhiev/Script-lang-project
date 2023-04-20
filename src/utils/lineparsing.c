@@ -164,3 +164,64 @@ char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_de
   parsed_str[str_len]='\0';
   return parsed_str;
 }
+
+//This function gets the string from a delimiter, 
+//but it will get the string that corresponds to that scope 
+//For example "((123)(123))" input will return (123)(123)
+//will return NULL if string is not properly scoped stacked
+//this function will ignore trailing characters
+//Checktrailing_WhiteSpace = 1 ----> will make there is only white before opening_delimiter
+//Checktrailing_WhiteSpace = 0 ----> will not check for the latter
+//opening and closing delimiter cannot be equal
+char* getScopedDelimitedString(char* line, char opening_delimiter, char closing_delimiter, int Checktrailing_WhiteSpace) {
+  if(opening_delimiter==closing_delimiter) return NULL;
+  int stack_count=0;
+  boolean as_met_opening_delimiter=FALSE;
+  int str_len=0;
+  int start_index=0;
+  for(int i=0; line[i] != '\0'; i++) {
+    
+    //if we found our delimited string    
+    if(stack_count == 0 && as_met_opening_delimiter == TRUE) {
+      break;
+    
+    //if we meet opening delimiter
+    } else if(line[i] == opening_delimiter) {
+      if(as_met_opening_delimiter == FALSE) {
+        start_index=i+1;
+         as_met_opening_delimiter=TRUE;
+        stack_count++;
+        continue;
+      } 
+      str_len++;
+      as_met_opening_delimiter=TRUE;
+      stack_count++;
+
+    //we check if have met an illegal char
+    //depending on Checktrailing_WhiteSpace parameter 
+    } else if(Checktrailing_WhiteSpace == 1 && 
+      as_met_opening_delimiter == FALSE && 
+      isspace(line[i]) == 0) {
+        return NULL; 
+
+    //if we meet closing delimiter
+    } else if(line[i] == closing_delimiter) {
+      stack_count--;
+      if(stack_count > 0) str_len++;
+
+    //otherwise its simply some char inside the delimiters
+    } else if(as_met_opening_delimiter == TRUE) {
+      str_len++;
+    }
+  }
+  //means delimiters were never closed or we never met a opening delimiter
+  if(stack_count > 0 || as_met_opening_delimiter ==FALSE) return NULL;
+
+  //we malloc string and return it
+  char* delimited_string = malloc(sizeof(char)*str_len+1);
+  for(int i=0; i<str_len; i++) 
+    delimited_string[i]=line[start_index+i];
+  delimited_string[str_len]='\0';
+  
+  return delimited_string;
+}
