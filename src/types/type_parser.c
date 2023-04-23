@@ -8,6 +8,7 @@
 //return UNKNOWN if there is a syntax error
 //this function stops after seeing a '[', a number or '"'
 //it does NOT check if syntax is proper
+//TODO IMPLEMENT FUNCTION TYPE
 TYPE getTypeHint(const char* line) {
   boolean metNumber=FALSE;
   for(int i=0; line[i] != '\0' ; i++) {

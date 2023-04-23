@@ -50,3 +50,6 @@ struct evaluated_expression {
 typedef struct {
   struct prefix_node *head;
 } Prefix_Tree;
+
+Prefix_Tree* parse_Arithmetic_exp(char* expression);
+int isArithmeticExprValid(char* expression);

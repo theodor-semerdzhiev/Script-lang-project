@@ -1,5 +1,9 @@
 let num= []
 let num=123
+let num= math(40*34+10)
+
+let num = math(40*20+4)
+let str="123123123"
 
 
 

@@ -8,6 +8,7 @@ UTILS_DIR = ./src/utils
 SYNTAX_ANALYSIS_DIR = ./src/syntax_tree/syntax_analysis
 SYMBOL_TABLES_DIR = ./src/symbol_tables
 TYPES_DIR = ./src/types
+EXPRESSIONS = ./src/expressions
 
 # Source files
 SRCS = $(SYNTAX_TREE_DIR)/syntax_tree.c \
@@ -19,6 +20,7 @@ SRCS = $(SYNTAX_TREE_DIR)/syntax_tree.c \
        $(SYMBOL_TABLES_DIR)/variable_table.c \
        $(SYNTAX_ANALYSIS_DIR)/shout_parser.c \
        $(TYPES_DIR)/lists.c \
+       $(EXPRESSIONS)/math_expr.c \
        main.c
 
 # Object files

@@ -1,3 +1,4 @@
+#include "../../expressions/math_expr.h"
 #include "../../utils/lineparsing.h"
 #include "../../types/types.h"
 #include "../syntax_tree.h"
@@ -287,7 +288,7 @@ static TYPE AssignVar(let_node_instruction *let_, char* line) {
   free(var_name); //frees String struct (not the actual malloced var_name->string)
   let_->var=var;
 
-  printf("%s: var %s", let_->var_name,let_->var->data.str->string);
+  printf("%s: var %s", let_->var_name,let_->var->data.str->string); //for debugging purposes
   return VAR;
 }
 
@@ -307,9 +308,9 @@ static TYPE AssignArithmeticExpression(let_node_instruction *let_, char* line) {
   }
 
   //TODO --> WRITE CODE FOR PARSING ARITHMETIC EXPRESSION
-  char* arithmetic_expression = getStringFromDelimiter(line,'(',')',1);
-
-  printf("\nmath Expression: %s", arithmetic_expression); //for testing
+  char* arithmetic_expression = getStringFromDelimiter(line,'(',')',0);
+  //parse_Arithmetic_exp(arithmetic_expression);
+  printf("%s",arithmetic_expression);  
   free(arithmetic_expression);
   return ARITHMETIC_EXPRESSION;
 }

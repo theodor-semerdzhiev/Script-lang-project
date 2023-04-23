@@ -173,8 +173,10 @@ char* getStringFromDelimiter(char *line, char opening_delimiter, char closing_de
 //Checktrailing_WhiteSpace = 1 ----> will make there is only white before opening_delimiter
 //Checktrailing_WhiteSpace = 0 ----> will not check for the latter
 //opening and closing delimiter cannot be equal
+//this function will return NULL if closing_delimiter comes before opening delimiter
 char* getScopedDelimitedString(char* line, char opening_delimiter, char closing_delimiter, int Checktrailing_WhiteSpace) {
   if(opening_delimiter==closing_delimiter) return NULL;
+
   int stack_count=0;
   boolean as_met_opening_delimiter=FALSE;
   int str_len=0;
@@ -182,11 +184,14 @@ char* getScopedDelimitedString(char* line, char opening_delimiter, char closing_
   for(int i=0; line[i] != '\0'; i++) {
     
     //if we found our delimited string    
-    if(stack_count == 0 && as_met_opening_delimiter == TRUE) {
-      break;
+    if(stack_count == 0 && as_met_opening_delimiter == TRUE) break;
+    
+    //checks if closing delimiter happens before our opening delimiter
+    //will return NULL
+    if(as_met_opening_delimiter == FALSE && line[i] == closing_delimiter) return NULL;
     
     //if we meet opening delimiter
-    } else if(line[i] == opening_delimiter) {
+    if(line[i] == opening_delimiter) {
       if(as_met_opening_delimiter == FALSE) {
         start_index=i+1;
          as_met_opening_delimiter=TRUE;
