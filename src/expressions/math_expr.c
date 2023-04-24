@@ -16,14 +16,6 @@ Prefix_Tree* parse_Arithmetic_exp(char* expression) {
   return NULL;
 }
 
-//TODO
-/*
-There is a bug where the checkNumberDeclarationSyntax is starting from the last operator 
-and it goes over the operator char causing problems
-We only want to parse the value and leave the operator alone
-
-*/
-
 //will do a one pass scan for string to check if arithmetic expression as proper syntax
 //1 --> good syntax
 //0 --> bad syntax
@@ -93,6 +85,12 @@ int isArithmeticExprValid(char* expression) {
 
       //if there is no valid previous operator, then this must be an error
       return 0;
+    
+    //this will handle the last value declaration of our expression (not applied to sub expressions, this is handled seperately)
+    } else if(expression[i+1] == '\0' && 
+              sub_expr_inscope == FALSE && 
+              checkNumberDeclarationSyntax(expression,prev_index_of_op,i+1) == 0) {
+      return 0;
     }
   }
   return 1;
@@ -150,6 +148,13 @@ static int checkNumberDeclarationSyntax(const char* expression, int start, int e
       }
       //if we went through loop without problem, then we return 1
       return 1;
+
+      //if its a random letter then its not proper syntax
+    } else if(isalpha(expression[i]) != 0) {
+      return 1;
+      //if its a parenthesis, the calling function will check for that
+    } else if(expression[i] == '(') {
+      return 1;
     } else {
       return 0;
     }
@@ -159,7 +164,7 @@ static int checkNumberDeclarationSyntax(const char* expression, int start, int e
 
 int main() {
   char* str="* 123123 1 *";
-  printf("%d", isArithmeticExprValid("(3.14 * 2.2 + 4.7) / 0.5 - 6.9 + 1.3 * (5.6 - 2.1) - 0.7 / 0.312a"));
+  printf("%d", isArithmeticExprValid("(3 % $num) * (3.14 * 2.2 + 4.7) / 0.5 - 6.9 + 1.3 * (5.6 - 2.1) - 0.7 / 0.312"));
 
 }
 
