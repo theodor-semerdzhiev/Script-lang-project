@@ -188,4 +188,6 @@ String* getVariableName(char* line, int checkTrailingWhitespace) {
   return str;
 }
 
+//TODO write variable parser that checks if the usage of a variable is valid returns the length of that corresponding declaration
+
 
