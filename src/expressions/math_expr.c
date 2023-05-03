@@ -362,7 +362,10 @@ int isArithmeticExprValid(char* expression) {
       if(sub_exp == NULL) return 0; 
 
       //we have a recursive call to see if the sub expression is valid
-      if(isArithmeticExprValid(sub_exp) == 0) return 0;
+      if(isArithmeticExprValid(sub_exp) == 0) {
+        free(sub_exp);
+        return 0;
+      }
       //increments the i to the length of the sub expression (-1 because the for loop will increment)
       i+=strlen(sub_exp)+1;
       free(sub_exp);
