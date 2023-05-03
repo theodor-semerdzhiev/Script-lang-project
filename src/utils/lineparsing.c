@@ -230,3 +230,35 @@ char* getScopedDelimitedString(char* line, char opening_delimiter, char closing_
   
   return delimited_string;
 }
+
+//this function gets the substring delimited by start and end (included)
+//will return NULL if bounds are out of bounds
+//start and end should not be negative 
+char* getSubString(char* str, int start, int end) {
+  //if the bounds are the same, then the substring is length 1
+  if(start == end) {
+    char* new_str= malloc(sizeof(char)+1);
+    new_str[start]=str[start];
+    new_str[1]='\0';
+    return new_str;
+  }
+  //invalid bounds
+  if(start < 0 || end < 0) return NULL;
+
+  //gets the length of the string
+  int str_len=0;
+  for(int i=start; i <= end; i++) {
+    if(str[i] == '\0') break;
+    str_len++;
+  }
+  
+  //mallocs and sets string
+  char* string = malloc(sizeof(char) * str_len+1);
+  for(int i=0; i < str_len; i++) 
+    string[i]=str[start+i];
+
+  string[str_len]='\0';
+  return string;
+
+}
+

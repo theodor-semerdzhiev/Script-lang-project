@@ -173,7 +173,7 @@ String* getVariableName(char* line, int checkTrailingWhitespace) {
       str_ptr++;
     }
   }
-  if(isalpha(str_ptr[0]) == 0) return NULL;
+  //if(isalpha(str_ptr[0]) == 0) return NULL;
   if(checkTrailingWhitespace == 1 && isLineEmpty(str_ptr+variable_name_length) == 0) return NULL;
 
   char* var_name=malloc(sizeof(char)*variable_name_length+1);
@@ -188,6 +188,6 @@ String* getVariableName(char* line, int checkTrailingWhitespace) {
   return str;
 }
 
-//TODO write variable parser that checks if the usage of a variable is valid returns the length of that corresponding declaration
+//TODO write variable parser that checks if the usage of a variable is valid returns  
 
 
