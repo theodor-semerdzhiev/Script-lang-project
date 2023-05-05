@@ -20,7 +20,6 @@ union value_type {
 struct prefix_node {
   Operation op;
   TYPE type; // will only be checked if op is NONE
-  
   union value_type data;
   struct prefix_node *left;
   struct prefix_node *right;

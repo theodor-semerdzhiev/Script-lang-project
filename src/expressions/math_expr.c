@@ -10,8 +10,10 @@ static int getNextScopedOccurenceOfOperator(char* expression, char* operators);
 static int checkNumberDeclarationSyntax(const char* expression, int start, int end);
 static struct prefix_node* createSecondDegreeOperatorTree(char* expression);
 static void setValueAndType(struct prefix_node *node, char* value_declaration);
+static void copyNode(struct prefix_node* new_copy, struct prefix_node* node);
 
 //This function contains the main logic for creating the prefix tree used to compute arithmetic expressions
+//since isArithmeticExprValid run beforehand, we can assume all syntax is gonna be proper
 Prefix_Tree* parse_Arithmetic_exp(char* expression) {
   
   printf("%s",expression);
@@ -25,77 +27,89 @@ Prefix_Tree* parse_Arithmetic_exp(char* expression) {
   //use to point to index of last operator
   int left_ptr=0;
   boolean asMetFirstOp=FALSE;
+  int stack_count=0;
 
   for(int i=0; expression[i] != '\0'; i++) {
-    if( expression[i] == '+' || 
-        expression[i] == '-') {
-      
-      //mallocs the + operator node
-      struct prefix_node* first_degree_op=malloc(sizeof(struct prefix_node));
-      first_degree_op->left=NULL;
-      first_degree_op->right=NULL;
-      
-      //assigns operator enum
-      if(expression[i] == '+') first_degree_op->op=ADD;
-      else first_degree_op->op=SUB; 
-
-      //if this is the first + or - in the expression
-      if(asMetFirstOp == FALSE) {
-        //parses left subtree
-        char* left_value_declaration=getSubString(expression, left_ptr, i-1);
-        struct prefix_node* left_sub_tree = createSecondDegreeOperatorTree(left_value_declaration);
-        free(left_value_declaration);
-        first_degree_op->left=left_sub_tree;
-
-
-        //gets the amount of char before an other - or +, taking into account ( )
-        int chars_to_operators = getNextScopedOccurenceOfOperator(expression, "-+");
-
-        //if -1 is returned, then there no other - or + operators in scope
-        if(chars_to_operators == -1) {  
-          struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(&(expression[i+1]));
-          first_degree_op->right=right_sub_tree;
-          pref_tree->head=first_degree_op;
-          return pref_tree;
-        }
-
-        //mallocs sub expression and create node, sets it as new head
-        char* right_value_declaration= getSubString(expression, i+1, i+chars_to_operators);
-        struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(right_value_declaration);
-        free(right_value_declaration);
-        first_degree_op->right=right_sub_tree;
-        pref_tree->head=first_degree_op;
-
-      } else {
-        //gets the number of chars until the next - or + operator
-        int chars_to_operators = getNextScopedOccurenceOfOperator(expression, "-+");
-
-        //if this operator is the last operator of the expression
-        if(chars_to_operators == -1 ) {
-          struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(&(expression[i+1]));
-          first_degree_op->right=right_sub_tree;
-          pref_tree->head=first_degree_op;
-          return pref_tree;          
-        }
-
-        //this gets parses the right sub tree 
-        char* right_value_declaration = getSubString(expression, i+1, i+chars_to_operators);
-        struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(right_value_declaration);
-        free(right_value_declaration);
-        first_degree_op->right=right_sub_tree;
-        first_degree_op->left=pref_tree->head;
-        pref_tree->head=first_degree_op;
-        
-      }
-      asMetFirstOp=TRUE;
-      left_ptr=i;
+    if(expression[i] == '(') {
+      stack_count++;
+      continue;
     } 
+    if(expression[i] == ')') {
+      stack_count--;
+      continue;
+    }
+    if(stack_count == 0) {
+      if( expression[i] == '+' || 
+          expression[i] == '-') {
+        
+        //mallocs the + operator node
+        struct prefix_node* first_degree_op=malloc(sizeof(struct prefix_node));
+        first_degree_op->left=NULL;
+        first_degree_op->right=NULL;
+        
+        //assigns operator enum
+        if(expression[i] == '+') first_degree_op->op=ADD;
+        else first_degree_op->op=SUB; 
+
+        //if this is the first + or - in the expression
+        if(asMetFirstOp == FALSE) {
+          //parses left subtree
+          char* left_value_declaration=getSubString(expression, left_ptr, i-1);
+          struct prefix_node* left_sub_tree = createSecondDegreeOperatorTree(left_value_declaration);
+          free(left_value_declaration);
+          first_degree_op->left=left_sub_tree;
+
+
+          //gets the amount of char before an other - or +, taking into account ( )
+          int chars_to_operators = getNextScopedOccurenceOfOperator(&(expression[i+1]), "-+");
+
+          //if -1 is returned, then there no other - or + operators in scope
+          if(chars_to_operators == -1) {  
+            struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(&(expression[i+1]));
+            first_degree_op->right=right_sub_tree;
+            pref_tree->head=first_degree_op;
+            return pref_tree;
+          }
+
+          //mallocs sub expression and create node, sets it as new head
+          char* right_value_declaration= getSubString(expression, i+1, i+chars_to_operators);
+          struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(right_value_declaration);
+          free(right_value_declaration);
+          first_degree_op->right=right_sub_tree;
+          pref_tree->head=first_degree_op;
+
+        } else {
+          //gets the number of chars until the next - or + operator
+          int chars_to_operators = getNextScopedOccurenceOfOperator(&(expression[i+1]), "-+");
+
+          //if this operator is the last operator of the expression
+          if(chars_to_operators == -1 ) {
+            struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(&(expression[i+1]));
+            first_degree_op->right=right_sub_tree;
+            first_degree_op->left=pref_tree->head;
+            pref_tree->head=first_degree_op;
+            return pref_tree;          
+          }
+
+          //this gets parses the right sub tree 
+          char* right_value_declaration = getSubString(expression, i+1, i+chars_to_operators);
+          struct prefix_node* right_sub_tree = createSecondDegreeOperatorTree(right_value_declaration);
+          free(right_value_declaration);
+          first_degree_op->right=right_sub_tree;
+          first_degree_op->left=pref_tree->head;
+          pref_tree->head=first_degree_op;
+          
+        }
+        asMetFirstOp=TRUE;
+        left_ptr=i;
+      } 
+    }
   }
 
   //TODO
   //This will handle the case where no properly scoped +- operator is found
   if(asMetFirstOp == FALSE) {
-
+    pref_tree->head=createSecondDegreeOperatorTree(expression);
   } 
   return pref_tree;
 }
@@ -111,13 +125,9 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
     //keeps track of scope
     if(expression[i] == '(') {
       stack_count++;
-      continue;
     } else if(expression[i] == ')') {
       stack_count--;
-      continue;
-    }
-
-    if(stack_count == 0) {
+    } else if(stack_count == 0) {
       if(expression[i] == '*' || 
         expression[i] == '/' || 
         expression[i] == '%') {
@@ -206,14 +216,11 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
           setValueAndType(right_child, value_declaration);
           free(value_declaration);
 
-
           operator_node->right=right_child;
           operator_node->left=cur_head;
 
           cur_head=operator_node;
-
         }
-
         as_met_first_op=TRUE;
         left_ptr=i;
       }
@@ -231,7 +238,6 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
     cur_head=value_declaration_node;
   }
 
-
   return cur_head;
 }
 
@@ -247,12 +253,9 @@ static int getNextScopedOccurenceOfOperator(char* expression, char* operators) {
   for(int i=0; expression[i] != '\0'; i++) {
     if(expression[i] == '(') {
       stack_Count++;
-      continue;
     } else if(expression[i] == ')')  {
       stack_Count--;
-      continue;
-    }
-    if(stack_Count == 0) {
+    } else if(stack_Count == 0) {
       for(int j=0; operators[j] !='\0'; j++) {
         if(operators[j] == expression[i]) return i;
       }
@@ -278,19 +281,46 @@ static void setValueAndType(struct prefix_node *node, char* value_declaration) {
     }
   }
   if(type == ARITHMETIC_EXPRESSION) {
-    //TODO
+    char* sub_expression=getScopedDelimitedString(value_declaration,'(', ')', 0);
+    Prefix_Tree* pref_tree=parse_Arithmetic_exp(sub_expression);
+
+    //takes node and create a deep copy of pref_tree->head    
+    copyNode(node,pref_tree->head);
+
+    //frees all dynamic memory
+    free(pref_tree->head);
+    free(sub_expression);
+    free(pref_tree);
   } else if(type==VAR) {
     //TODO creates function in type_parser.c that gets a string representing a variable and returns the variable struct that its mapped to 
   } else if(type == INTEGER) {
     node->data.integer=atoi(value_declaration);
+    node->op=NONE;
   } else if(type == DOUBLE) {
     node->data.floating_point=atof(value_declaration);
+    node->op=NONE;
   }
-
-  node->type=type;
+  
+  if(type != ARITHMETIC_EXPRESSION)
+    node->type=type;
 
 }
 
+//this function takes a blank node new_copy and creates a deep copy of node
+//used in setValueAndType()
+static void copyNode(struct prefix_node* new_copy, struct prefix_node* node) {
+  new_copy->left=node->left;
+  new_copy->right=node->right;
+  new_copy->op=node->op;
+  new_copy->type=node->type;
+  if(new_copy->type == VAR) {
+    new_copy->data.var=node->data.var;
+  } else if(new_copy->type == INTEGER) {
+    new_copy->data.integer=node->data.integer;
+  } else if(new_copy->type == DOUBLE) {
+    new_copy->data.floating_point=node->data.floating_point;
+  }
+}
 //will do a one pass scan for string to check if arithmetic expression as proper syntax
 //1 --> good syntax
 //0 --> bad syntax
@@ -464,6 +494,28 @@ static int checkNumberDeclarationSyntax(const char* expression, int start, int e
   return 1;
 }
 
+//this function recursively goes through the tree, computing the result
+Variable* EvaluateExpression(struct prefix_node* head, Variable* var) {
+
+  //base case, we reached a leaf
+  if(head->op == NONE) {
+
+
+  //otherwise we have our recursive step
+  } else if(head->op == ADD) {
+    
+  } else if(head->op == SUB) {
+
+  } else if(head->op == MULT) {
+
+  } else if(head->op == DIV) {
+
+  } else if(head->op == MOD) {
+
+  }
+}
+
+
 int main() {
 
   printf("----------VALID SYNTAX TESTS (output 1) ---------\n");
@@ -526,7 +578,7 @@ int main() {
   printf("CASE 6:%d\n", isArithmeticExprValid("($var1 + $var2 + $var3) * ($var4 + $var5 - $var6) / ($var7 * $var8)"));
   printf("CASE 7:%d\n", isArithmeticExprValid("$x * ($y + $z) / ($p - $q) + $r - $s + $t"));
   printf("CASE 8:%d\n", isArithmeticExprValid("($a - $b) * ($c / $d) + $e / $f - $g + $h * $i - $j / $k"));
-  printf("CASE 9:%d\n", isArithmeticExprValid("$var1 * $var2 / ($var3 + $var4) - ($var5 + $var6 * $var7) + ($var8 - $var9)"));
+  printf("CASE 9:%d\n", isArithmeticExprValid("($var1 * ($var2)) / ($var3 + $var4) - ($var5 + $var6 * $var7) + ($var8 - $var9)"));
   printf("CASE 10:%d\n", isArithmeticExprValid("($x + $y - $z) / ($p * $q) - $r * $s + $t / $u"));
   printf("CASE 11:%d\n", isArithmeticExprValid("10.1231"));
 
@@ -534,7 +586,7 @@ int main() {
 
   printf("-------------------------------------------------------------");
 
-  parse_Arithmetic_exp("200 * 2.2312313 + 299 * 20312");
+  parse_Arithmetic_exp("(200*(1+2*3))");
   //createSecondDegreeOperatorTree("1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * 10");
 
 }

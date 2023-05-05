@@ -238,7 +238,7 @@ char* getSubString(char* str, int start, int end) {
   //if the bounds are the same, then the substring is length 1
   if(start == end) {
     char* new_str= malloc(sizeof(char)+1);
-    new_str[start]=str[start];
+    new_str[0]=str[start];
     new_str[1]='\0';
     return new_str;
   }

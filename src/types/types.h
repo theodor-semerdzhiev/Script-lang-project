@@ -12,6 +12,8 @@ typedef enum {
   BOOL,
   ARRAY,
   FUNCTION,
+
+  //the rest of these will are there for keyword parsing
   VAR,
   _NULL,
   ARITHMETIC_EXPRESSION,
@@ -44,6 +46,9 @@ typedef struct List {
   Variable** list;
 } List;
 
+Variable* AddVariables(Variable* var1, Variable *var2);
+Variable* SubstractVariables(Variable* var1, Variable *var2);
+Variable* MultiplyVariables(Variable* var1, Variable *var2);
 void freeVariableStruct(Variable *var);
 Variable* createVariableStruct(TYPE type, char* variable_name, void* data, size_t len_of_str_data);
 
