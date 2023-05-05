@@ -495,6 +495,7 @@ static int checkNumberDeclarationSyntax(const char* expression, int start, int e
 }
 
 //this function recursively goes through the tree, computing the result
+//TODO FINISH THIS
 Variable* EvaluateExpression(struct prefix_node* head, Variable* var) {
 
   //base case, we reached a leaf
