@@ -16,13 +16,12 @@ static void copyNode(struct prefix_node* new_copy, struct prefix_node* node);
 //since isArithmeticExprValid run beforehand, we can assume all syntax is gonna be proper
 Prefix_Tree* parse_Arithmetic_exp(char* expression) {
   
-  printf("%s",expression);
+  // printf("%s",expression);
   if(isArithmeticExprValid(expression) == 0) 
     return 0;
 
   Prefix_Tree* pref_tree = malloc(sizeof(Prefix_Tree));
   pref_tree->head=NULL;
-  pref_tree->next=NULL;
 
   //use to point to index of last operator
   int left_ptr=0;
@@ -135,6 +134,7 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
         struct prefix_node* operator_node=malloc(sizeof(struct prefix_node));
         operator_node->right=NULL;
         operator_node->left=NULL;
+        operator_node->data=NULL;
 
         //sets the operation enum
         if(expression[i] == '*')
@@ -150,6 +150,7 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
           struct prefix_node* left_child = malloc(sizeof(struct prefix_node));
           left_child->left=NULL;
           left_child->right=NULL;
+          left_child->data=NULL;
           left_child->op=NONE;
           
           //parses value of that node
@@ -164,6 +165,7 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
           struct prefix_node* right_child = malloc(sizeof(struct prefix_node));
           right_child->left=NULL;
           right_child->right=NULL;
+          right_child->data=NULL;
           right_child->type=NONE;
 
 
@@ -193,6 +195,7 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
           struct prefix_node* right_child = malloc(sizeof(struct prefix_node));
           right_child->left=NULL;
           right_child->right=NULL;
+          right_child->data=NULL;
           right_child->op=NONE;
           
           //this gets the number of chars until the next operator, taking into account enclosed by parenthesis
@@ -233,6 +236,7 @@ static struct prefix_node* createSecondDegreeOperatorTree(char* expression) {
     struct prefix_node* value_declaration_node = malloc(sizeof(struct prefix_node));
     value_declaration_node->left=NULL;
     value_declaration_node->right=NULL;
+    value_declaration_node->data=NULL;
     value_declaration_node->op=NONE;
     setValueAndType(value_declaration_node,expression);
     cur_head=value_declaration_node;
@@ -293,11 +297,21 @@ static void setValueAndType(struct prefix_node *node, char* value_declaration) {
     free(pref_tree);
   } else if(type==VAR) {
     //TODO creates function in type_parser.c that gets a string representing a variable and returns the variable struct that its mapped to 
-  } else if(type == INTEGER) {
-    node->data.integer=atoi(value_declaration);
+  } else if(type == INTEGER) {  
+    Variable* integer = malloc(sizeof(Variable));
+    integer->name=NULL;
+    integer->type=INTEGER;
+    integer->data.integer=atoi(value_declaration);
+
+    node->data=integer;
     node->op=NONE;
   } else if(type == DOUBLE) {
-    node->data.floating_point=atof(value_declaration);
+    Variable* double_precision = malloc(sizeof(Variable));
+    double_precision->name=NULL;
+    double_precision->type=DOUBLE;
+    double_precision->data.floatingpoint=atof(value_declaration);
+    
+    node->data=double_precision;
     node->op=NONE;
   }
   
@@ -313,13 +327,7 @@ static void copyNode(struct prefix_node* new_copy, struct prefix_node* node) {
   new_copy->right=node->right;
   new_copy->op=node->op;
   new_copy->type=node->type;
-  if(new_copy->type == VAR) {
-    new_copy->data.var=node->data.var;
-  } else if(new_copy->type == INTEGER) {
-    new_copy->data.integer=node->data.integer;
-  } else if(new_copy->type == DOUBLE) {
-    new_copy->data.floating_point=node->data.floating_point;
-  }
+  new_copy->data=node->data;
 }
 //will do a one pass scan for string to check if arithmetic expression as proper syntax
 //1 --> good syntax
@@ -496,28 +504,52 @@ static int checkNumberDeclarationSyntax(const char* expression, int start, int e
 
 //this function recursively goes through the tree, computing the result
 //TODO FINISH THIS
-Variable* EvaluateExpression(struct prefix_node* head, Variable* var) {
+Variable* EvaluateExpression(struct prefix_node* head) {
 
   //base case, we reached a leaf
-  if(head->op == NONE) {
-
-
-  //otherwise we have our recursive step
-  } else if(head->op == ADD) {
+  if(head->op == NONE) return head->data;
     
-  } else if(head->op == SUB) {
+  //otherwise we have our recursive steps
+  Variable* var1 = EvaluateExpression(head->left);
+  Variable* var2 = EvaluateExpression(head->right);
+  Variable* result_of_operation=NULL;
 
-  } else if(head->op == MULT) {
-
-  } else if(head->op == DIV) {
-
-  } else if(head->op == MOD) {
-
+  switch (head->op) {
+    case ADD:
+      result_of_operation=AddVariables(var1,var2);
+      break;
+    case SUB:
+      result_of_operation=SubstractVariables(var1,var2);
+      break;
+    case MULT:
+      result_of_operation=MultiplyVariables(var1,var2);
+      break;
+    case DIV:
+      result_of_operation=DivideVariables(var1,var2);
+      break;
+    case MOD:
+      result_of_operation=ModulusVariables(var1,var2);
+      break;
+  
+    //this default in theory should never get run
+    default:
+      break;
   }
+
+  //if the next child is not a leaf, it means its results of an operation
+  //therefor we need to free it to prevent memory leaks
+  if(head->left->op != NONE)
+    free(var1);
+    
+  if(head->left->op != NONE)
+    free(var2);
+
+  return result_of_operation;
 }
 
 
-int main() {
+//tester used to test arthmetic expression parser 
+static void tester() {
 
   printf("----------VALID SYNTAX TESTS (output 1) ---------\n");
 
@@ -585,11 +617,21 @@ int main() {
 
 
 
-  printf("-------------------------------------------------------------");
+  printf("--------------Arithmetic Computation Tests--------------");
+  
+  Prefix_Tree *tree = parse_Arithmetic_exp("((30+(100.23*230)-102)/3) % 2");
+  Variable* res = EvaluateExpression(tree->head);
 
-  parse_Arithmetic_exp("(200*(1+2*3))");
-  //createSecondDegreeOperatorTree("1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * 10");
+  if(res->type == DOUBLE)
+    printf("\n%f",res->data.floatingpoint);
+  else if(res->type == INTEGER)
+    printf("\n%d",res->data.integer);
+  
 
+}
+
+int main() {
+  tester();
 }
 
 

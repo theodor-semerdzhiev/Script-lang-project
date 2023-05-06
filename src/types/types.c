@@ -6,10 +6,11 @@
 #include <string.h>
 
 static int areVariableTypesValidForArithmeticComputation(Variable* var1, Variable* var2);
-
+static double mod_d(double var1, double var2);
 //frees Variable Struct properly
 void freeVariableStruct(Variable* var) {
-  free(var->name);
+  if(var->name != NULL) free(var->name);
+
   if(var->type==STRING) {
     free(var->data.str->string);
     free(var->data.str);
@@ -103,44 +104,46 @@ Variable* AddVariables(Variable* var1, Variable *var2) {
     result_of_addition->type=DOUBLE;
     result_of_addition->data.floatingpoint=var1->data.floatingpoint + var2->data.floatingpoint;
 
+  //if var1 is a double, then var2 must be an integer
   } else if(var1->type == DOUBLE) {
     int valueOfvar2=0;
     //if its a string then we know its a char (strlen == 1)
     if(var2->type == STRING) 
-      valueOfvar2= (int) var1->data.str->string[0];
+      valueOfvar2= (int) var2->data.str->string[0];
     else if(var2->type == INTEGER) 
-      valueOfvar2=var1->data.integer;
+      valueOfvar2=var2->data.integer;
     else if(var2->type == BOOL) 
-      valueOfvar2=var1->data.boolean;
+      valueOfvar2=var2->data.boolean;
     
     //performs computation
     result_of_addition->type=DOUBLE;
     result_of_addition->data.floatingpoint=var1->data.floatingpoint + (double) valueOfvar2;
 
+  //if var2 is a double, then var1 must be an integer
   } else if(var2->type == DOUBLE) {
     int valueOfvar1=0;
     //if its a string then we know its a char (strlen == 1)
-    if(var2->type == STRING) 
+    if(var1->type == STRING) 
       valueOfvar1= (int) var1->data.str->string[0];
-    else if(var2->type == INTEGER) 
+    else if(var1->type == INTEGER) 
       valueOfvar1=var1->data.integer;
-    else if(var2->type == BOOL) 
+    else if(var1->type == BOOL) 
       valueOfvar1=var1->data.boolean;
     
     //performs computation
     result_of_addition->type=DOUBLE;
-    result_of_addition->data.floatingpoint=valueOfvar1+result_of_addition->data.floatingpoint;
+    result_of_addition->data.floatingpoint=valueOfvar1+var2->data.floatingpoint;
   } else {
     int valueOfvar1=0;
     int valueOfvar2=0;
 
     //these if statements sets the integer values of the integer fields
     if(var2->type == STRING) 
-      valueOfvar2=(int) var1->data.str->string[0];
+      valueOfvar2=(int) var2->data.str->string[0];
     else if(var2->type == INTEGER) 
-      valueOfvar2=var1->data.integer;
+      valueOfvar2=var2->data.integer;
     else if(var2->type == BOOL) 
-      valueOfvar2=var1->data.boolean;
+      valueOfvar2=var2->data.boolean;
 
     if(var1->type == STRING) 
       valueOfvar1=(int) var1->data.str->string[0];
@@ -177,11 +180,11 @@ Variable* SubstractVariables(Variable* var1, Variable *var2) {
     int valueOfvar2=0;
     //if its a string then we know its a char (strlen == 1)
     if(var2->type == STRING) 
-      valueOfvar2= (int) var1->data.str->string[0];
+      valueOfvar2= (int) var2->data.str->string[0];
     else if(var2->type == INTEGER) 
-      valueOfvar2=var1->data.integer;
+      valueOfvar2=var2->data.integer;
     else if(var2->type == BOOL) 
-      valueOfvar2=var1->data.boolean;
+      valueOfvar2=var2->data.boolean;
     
     //performs computation
     result_of_addition->type=DOUBLE;
@@ -190,27 +193,27 @@ Variable* SubstractVariables(Variable* var1, Variable *var2) {
   } else if(var2->type == DOUBLE) {
     int valueOfvar1=0;
     //if its a string then we know its a char (strlen == 1)
-    if(var2->type == STRING) 
+    if(var1->type == STRING) 
       valueOfvar1= (int) var1->data.str->string[0];
-    else if(var2->type == INTEGER) 
+    else if(var1->type == INTEGER) 
       valueOfvar1=var1->data.integer;
-    else if(var2->type == BOOL) 
+    else if(var1->type == BOOL) 
       valueOfvar1=var1->data.boolean;
     
     //performs computation
     result_of_addition->type=DOUBLE;
-    result_of_addition->data.floatingpoint=valueOfvar1 - result_of_addition->data.floatingpoint;
+    result_of_addition->data.floatingpoint=(double) valueOfvar1 - var2->data.floatingpoint;
   } else {
     int valueOfvar1=0;
     int valueOfvar2=0;
 
     //these if statements sets the integer values of the integer fields
     if(var2->type == STRING) 
-      valueOfvar2=(int) var1->data.str->string[0];
+      valueOfvar2=(int) var2->data.str->string[0];
     else if(var2->type == INTEGER) 
-      valueOfvar2=var1->data.integer;
+      valueOfvar2=var2->data.integer;
     else if(var2->type == BOOL) 
-      valueOfvar2=var1->data.boolean;
+      valueOfvar2=var2->data.boolean;
 
     if(var1->type == STRING) 
       valueOfvar1=(int) var1->data.str->string[0];
@@ -245,17 +248,15 @@ Variable* MultiplyVariables(Variable* var1, Variable *var2) {
     
     //if its a string then we know its a char (strlen == 1)
     if(var2->type == STRING) 
-      valueOfvar2= (int) var1->data.str->string[0];
+      valueOfvar2= (int) var2->data.str->string[0];
     else if(var2->type == INTEGER) 
-      valueOfvar2=var1->data.integer;
+      valueOfvar2=var2->data.integer;
     else if(var2->type == BOOL) 
-      valueOfvar2=var1->data.boolean;
+      valueOfvar2=var2->data.boolean;
     
     result_of_mult->type=DOUBLE;
     //computes the multiplication
-    result_of_mult->data.floatingpoint= var1->data.floatingpoint * (double)valueOfvar2;
-
-    return result_of_mult;
+    result_of_mult->data.floatingpoint= var1->data.floatingpoint * (double) valueOfvar2;
 
   } else if(var2->type == DOUBLE) {
     int valueOfvar1=0;
@@ -270,9 +271,7 @@ Variable* MultiplyVariables(Variable* var1, Variable *var2) {
     
     result_of_mult->type=DOUBLE;
     //computes the multiplication
-    result_of_mult->data.floatingpoint= var2->data.floatingpoint * (double)valueOfvar1;
-
-    return result_of_mult;
+    result_of_mult->data.floatingpoint= var2->data.floatingpoint * (double) valueOfvar1;
 
   //else the resulting multiplication will be a integer
   } else {
@@ -281,11 +280,11 @@ Variable* MultiplyVariables(Variable* var1, Variable *var2) {
 
     //these if statements sets the integer values of the integer fields
     if(var2->type == STRING) 
-      valueOfvar2=(int) var1->data.str->string[0];
+      valueOfvar2=(int) var2->data.str->string[0];
     else if(var2->type == INTEGER) 
-      valueOfvar2=var1->data.integer;
+      valueOfvar2=var2->data.integer;
     else if(var2->type == BOOL) 
-      valueOfvar2=var1->data.boolean;
+      valueOfvar2=var2->data.boolean;
 
     if(var1->type == STRING) 
       valueOfvar1=(int) var1->data.str->string[0];
@@ -299,6 +298,173 @@ Variable* MultiplyVariables(Variable* var1, Variable *var2) {
     result_of_mult->data.integer= valueOfvar2 * valueOfvar1;
   }
   return result_of_mult;
+}
+
+// Computes numerator / denominator
+// mallocs new variable struct containing the result
+// name field of struct will be NULL
+// int / int will return a interger type (rounded down)
+Variable* DivideVariables(Variable* numerator, Variable * denominator) {
+  if(areVariableTypesValidForArithmeticComputation(numerator,denominator) == 0) 
+    return NULL;
+
+  Variable* result_of_mult=malloc(sizeof(Variable));
+  result_of_mult->name=NULL;
+
+  //if both variables are doubles
+  if(numerator->type == DOUBLE && denominator->type == DOUBLE) {
+    result_of_mult->type=DOUBLE;
+    result_of_mult->data.floatingpoint=numerator->data.floatingpoint / denominator->data.floatingpoint;
+
+  } else if(numerator->type == DOUBLE) {
+    int valueOfdenominator=0;
+    
+    //if its a string then we know its a char (strlen == 1)
+    if(denominator->type == STRING) 
+      valueOfdenominator= (int) denominator->data.str->string[0];
+    else if(denominator->type == INTEGER) 
+      valueOfdenominator=denominator->data.integer;
+    else if(denominator->type == BOOL) 
+      valueOfdenominator=denominator->data.boolean;
+    
+    //cannot divide by zero 
+    if(valueOfdenominator == 0) 
+      return NULL; //THROW ERROR
+
+    result_of_mult->type=DOUBLE;
+    //computes the multiplication
+    result_of_mult->data.floatingpoint= numerator->data.floatingpoint / (double) valueOfdenominator;
+
+  } else if(denominator->type == DOUBLE) {
+    //cannot divide by zero
+    if(denominator->data.floatingpoint == 0)
+      return NULL; //THROW ERROR
+    
+    int valueOfnumerator=0;
+
+    //if its a string then we know its a char (strlen == 1)
+    if(numerator->type == STRING) 
+      valueOfnumerator=(int) numerator->data.str->string[0];
+    else if(numerator->type == INTEGER) 
+      valueOfnumerator=numerator->data.integer;
+    else if(numerator->type == BOOL) 
+      valueOfnumerator=numerator->data.boolean;
+
+    result_of_mult->type=DOUBLE;
+    //computes the multiplication
+    result_of_mult->data.floatingpoint= (double) valueOfnumerator / denominator->data.floatingpoint;
+
+  //else the resulting multiplication will be a integer
+  } else {
+    int valueOfnumerator=0;
+    int valueOfdenominator=0;
+
+    //these if statements sets the integer values of the integer fields
+    if(denominator->type == STRING) 
+      valueOfdenominator=(int) denominator->data.str->string[0];
+    else if(denominator->type == INTEGER) 
+      valueOfdenominator=denominator->data.integer;
+    else if(denominator->type == BOOL) 
+      valueOfdenominator=denominator->data.boolean;
+
+    if(numerator->type == STRING) 
+      valueOfnumerator=(int) numerator->data.str->string[0];
+    else if(numerator->type == INTEGER) 
+      valueOfnumerator=numerator->data.integer;
+    else if(numerator->type == BOOL) 
+      valueOfnumerator=numerator->data.boolean;
+
+    result_of_mult->type=INTEGER;
+    //computes the division
+    result_of_mult->data.integer= (int) valueOfnumerator / valueOfdenominator;
+  }
+  return result_of_mult;
+}
+
+//computes var1 % var2
+//this function works for all data types
+Variable* ModulusVariables(Variable* var1, Variable * var2) {
+  if(areVariableTypesValidForArithmeticComputation(var1,var2) == 0)
+    return NULL; //THROW ERROR
+  
+  Variable* result_of_mod = malloc(sizeof(result_of_mod));
+  result_of_mod->name=NULL;
+
+  if(var1->type ==DOUBLE && var2->type == DOUBLE) {
+    result_of_mod->type=DOUBLE;
+    result_of_mod->data.floatingpoint = mod_d(var1->data.floatingpoint, var2->data.floatingpoint); 
+  } else if(var1->type == DOUBLE) {
+    int valueOfvar2=0;
+
+    //if its a string then we know its a char (strlen == 1)
+    if(var2->type == STRING) 
+      valueOfvar2=(int) var2->data.str->string[0];
+    else if(var2->type == INTEGER) 
+      valueOfvar2=var2->data.integer;
+    else if(var2->type == BOOL) 
+      valueOfvar2=var2->data.boolean;
+
+    //cannot do mod 0 (undefined)
+    if(valueOfvar2 == 0)
+      return NULL; //THROW ERROR
+    
+    result_of_mod->type=DOUBLE;
+    result_of_mod->data.floatingpoint = mod_d(var1->data.floatingpoint, (double) valueOfvar2);
+
+  } else if(var2->type == DOUBLE) {
+    //cannot do mod 0
+    if(var2->data.floatingpoint == 0)
+      return NULL; //THROW ERROR
+    
+    int valueOfvar1=0;  
+
+    //if its a string then we know its a char (strlen == 1)
+    if(var1->type == STRING) 
+      valueOfvar1=(int) var1->data.str->string[0];
+    else if(var1->type == INTEGER) 
+      valueOfvar1=var1->data.integer;
+    else if(var1->type == BOOL) 
+      valueOfvar1=var1->data.boolean;
+
+    
+    result_of_mod->type=DOUBLE;
+    result_of_mod->data.floatingpoint = mod_d((double) valueOfvar1, var2->data.floatingpoint);
+
+  } else {
+
+    int valueOfvar1=0;
+    int valueOfvar2=0;
+
+    //these if statements sets the integer values of the integer fields
+    if(var2->type == STRING) 
+      valueOfvar2=(int) var2->data.str->string[0];
+    else if(var2->type == INTEGER) 
+      valueOfvar2=var2->data.integer;
+    else if(var2->type == BOOL) 
+      valueOfvar2=var2->data.boolean;
+
+    //cannot do mod 0 (undefined)
+    if(valueOfvar2 == 0)
+      return NULL; //THROW ERROR
+
+    if(var1->type == STRING) 
+      valueOfvar1=(int) var1->data.str->string[0];
+    else if(var1->type == INTEGER) 
+      valueOfvar1=var1->data.integer;
+    else if(var1->type == BOOL) 
+      valueOfvar1=var1->data.boolean;
+
+    result_of_mod->type = INTEGER;
+    //computes the division
+    result_of_mod->data.integer = valueOfvar1 % valueOfvar2;
+    
+  }
+  return result_of_mod;
+}
+
+//computes mod of double precision floating points (var1 % var2)
+static double mod_d(double var1, double var2) {
+  return var1 - (int)(var1/var2) * var2;
 }
 
 
